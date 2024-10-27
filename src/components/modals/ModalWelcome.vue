@@ -19,7 +19,7 @@
       </ButtonGreen>
     </div>
 
-    <div class="flex place-content-between mt-4 text-xs">
+    <div class="mt-4 flex place-content-between text-xs">
       <a
         class="text-slate-300 underline"
         href="https://github.com/scambier/wordle-fr"

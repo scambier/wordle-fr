@@ -1,7 +1,7 @@
 <template>
   <button
-    @click="emit('click')"
-    class="inline-flex grow shrink-0 items-center p-2 text-sm text-white bg-green-dimmed hover:bg-green-800 rounded md:text-lg">
+    @click.prevent="emit('click')"
+    class="bg-green-dimmed inline-flex shrink-0 grow items-center rounded p-2 text-sm text-white hover:bg-green-800 md:text-lg">
     <slot />
   </button>
 </template>

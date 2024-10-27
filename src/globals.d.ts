@@ -1,3 +1,3 @@
-declare var umami: {
+declare let umami: {
   track: (event: string, payload?: any) => void
 }

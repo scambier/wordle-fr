@@ -1,18 +1,18 @@
 <template>
-  <div class="flex flex-col items-center mx-auto w-full max-w-lg h-full">
+  <div class="mx-auto flex size-full max-w-lg flex-col items-center">
     <!-- Header -->
     <SiteHeader />
 
     <!-- Grid container -->
-    <div class="flex flex-1 justify-center w-full">
+    <div class="flex w-full flex-1 justify-center">
       <!-- Grid -->
       <div
         ref="grid"
-        class="aspect-[5/6] grid grid-cols-5 grid-rows-6 gap-1 m-4 max-w-full md:max-h-[50vh]">
+        class="m-4 grid aspect-[5/6] max-w-full grid-cols-5 grid-rows-6 gap-1 md:max-h-[50vh]">
         <template v-for="y in [0, 1, 2, 3, 4, 5]">
           <LetterBox
             v-for="x in [0, 1, 2, 3, 4]"
-            class="h-[100%] text-3xl font-bold uppercase border md:text-4xl"
+            class="h-full border text-3xl font-bold uppercase md:text-4xl"
             :class="{
               'bg-green-dimmed border-green-dimmed':
                 guesses[y].confirmed &&
@@ -20,7 +20,7 @@
               'bg-yellow-dimmed border-yellow-dimmed':
                 guesses[y].confirmed &&
                 getLettersColors(guesses[y].word)[x] === KeyColor.Yellow,
-              'bg-slate-700 border-slate-700':
+              'border-slate-700 bg-slate-700':
                 guesses[y].confirmed &&
                 getLettersColors(guesses[y].word)[x] === KeyColor.Black,
               'border-slate-600': !guesses[y].confirmed,
@@ -28,7 +28,9 @@
             :style="{ transitionDelay: `${(x + 1) * ANIM_SPEED}ms` }">
             <span
               v-html="getLetter(y, x)"
-              :class="{ 'font-thin text-slate-500': getLetter(y, x) === '?' }" />
+              :class="{
+                'font-thin text-slate-500': getLetter(y, x) === '?',
+              }" />
           </LetterBox>
         </template>
       </div>
@@ -36,7 +38,7 @@
 
     <!-- Keyboard -->
     <VisualKeyboard
-      class="grow-0 shrink-0 px-1 mb-4 w-full h-48 md:mb-16"
+      class="mb-4 h-48 w-full shrink-0 grow-0 px-1 md:mb-16"
       @input="letter => pressLetter(letter)"
       @enter="pressEnter"
       @backspace="pressBackspace"
@@ -69,7 +71,7 @@ import { showToast } from '@/composables/toast-manager'
 import { ANIM_SPEED, KeyColor } from '@/constants'
 import { loadConfirmedWords } from '@/storage'
 
-const grid = ref<HTMLDivElement|null>(null)
+const grid = ref<HTMLDivElement | null>(null)
 watchEffect(() => onSizeChange)
 
 /**
