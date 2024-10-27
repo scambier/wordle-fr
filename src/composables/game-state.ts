@@ -5,18 +5,16 @@ import {
   endOfDay,
   subHours,
 } from 'date-fns'
-import { utcToZonedTime } from 'date-fns-tz'
 import { computed, reactive, watch } from 'vue'
 
-import { plausible } from '@/analytics'
-import { BXL_TZ, GAME_STARTING_DATE, K_WORDS, KeyColor } from '@/constants'
+import { K_WORDS, KeyColor } from '@/constants'
 import acceptedGuesses from '@/guesses-list'
 import * as storage from '@/storage'
 import { WordInput } from '@/types'
 import {
   getCurrentDate,
   normalizeWord,
-  numberOfHalfDays,
+  numberOfGamesSinceStart,
   shuffle,
 } from '@/utils'
 import words from '@/words-list'
@@ -24,7 +22,7 @@ import words from '@/words-list'
 import { isVisibleModalStats } from './modal-manager'
 import { showToast } from './toast-manager'
 
-const shuffled = shuffle(words)
+export const shuffled: Readonly<string[]> = shuffle(words)
 export const wordToFindAccented = getWordForToday()
 export const wordToFind = normalizeWord(wordToFindAccented)
 
@@ -48,7 +46,7 @@ watch(
   words => {
     if (words.filter(w => !!w).length === 1) {
       // Register a "start_game" event once the first word is input
-      plausible.trackEvent('start_game')
+      umami.track('start_game')
     }
     // Save confirmed words in storage to re-add them after a refresh
     storage.setItem(K_WORDS, JSON.stringify(words))
@@ -86,7 +84,7 @@ export function getWordForToday(): string {
     console.log(numberOfGamesSinceStart())
     console.log(shuffled[numberOfGamesSinceStart()])
   }
-  return shuffled[numberOfGamesSinceStart()]
+  return shuffled[numberOfGamesSinceStart() % words.length]
 }
 
 export function doesWordExist(word: string): boolean {
@@ -133,12 +131,4 @@ export function getTimeBeforeNextWord(): string {
   const h = differenceInHours(next, now)
   const m = differenceInMinutes(next, addHours(now, h))
   return h === 0 ? `${m} minutes` : `${h}h&nbsp;${m}m`
-}
-
-export function numberOfGamesSinceStart(): number {
-  const startDate = utcToZonedTime(
-    new Date(GAME_STARTING_DATE as string),
-    BXL_TZ,
-  )
-  return numberOfHalfDays(startDate, getCurrentDate())
 }

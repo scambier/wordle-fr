@@ -15,7 +15,7 @@
           is="button"
           @click="emit('enter')"
           title="Entrée"
-          class="flex basis-[calc(15%+5px)] flex-col bg-slate-700 active:bg-slate-700">
+          class="flex basis-[calc(15%+5px)] flex-col bg-slate-700 active:bg-slate-600">
           <IconReturn class="w-8 h-8" />
         </LetterBox>
 
@@ -23,7 +23,7 @@
         <LetterBox
           is="button"
           @click="emit('input', letter)"
-          class="basis-[10%] uppercase bg-slate-700 active:bg-slate-700"
+          class="basis-[10%] uppercase active:bg-slate-600"
           :class="colorToClass(colors[letter])">
           {{ letter }}
         </LetterBox>
@@ -34,7 +34,7 @@
           is="button"
           @click="emit('backspace')"
           title="Effacer"
-          class="basis-[calc(15%+5px)] bg-slate-700 active:bg-slate-700">
+          class="basis-[calc(15%+5px)] bg-slate-700 active:bg-slate-600">
           <IconBackspace class="w-8 h-8" />
         </LetterBox>
       </template>
@@ -73,6 +73,8 @@ function colorToClass(color: KeyColor): string {
       return 'bg-green-dimmed'
     case KeyColor.Yellow:
       return 'bg-yellow-dimmed'
+    default:
+      return 'bg-slate-700'
   }
 }
 </script>

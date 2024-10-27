@@ -5,7 +5,7 @@
       choisi au hasard.
     </p>
     <p class="mb-4">
-      <strong>Il s'agit du même mot,<br>pour tous les joueurs.</strong>
+      <strong>Il s'agit du même mot, pour tous les joueurs.</strong>
     </p>
     <p class="mb-4">
       Vous avez 6 essais pour trouver le mot en question.<br>
@@ -13,14 +13,6 @@
       Une lettre mal placée est 🟨.<br>
       Une lettre qui n'est pas dans le mot reste ⬛.
     </p>
-    <div class="mb-4 border-y">
-      <strong>✨ Nouveauté ✨</strong><br>
-      <div class="text-sm">
-        Du mal à trouver un mot ? Utilisez
-        <span class="px-1 rounded border">?</span>
-        pour remplir les cases manquantes et vous aider à visualiser !
-      </div>
-    </div>
     <div>
       <ButtonGreen @click="isVisibleModalWelcome = false">
         C'est parti !

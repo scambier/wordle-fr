@@ -1,7 +1,14 @@
-import { differenceInHours, endOfDay, startOfDay } from 'date-fns'
+import {
+  addHours,
+  differenceInHours,
+  endOfDay,
+  startOfDay,
+  subHours,
+} from 'date-fns'
 import { utcToZonedTime } from 'date-fns-tz'
 
 import { BXL_TZ, GAME_STARTING_DATE } from './constants'
+import words from './words-list'
 
 export function getCurrentDate(): Date {
   return utcToZonedTime(new Date(), BXL_TZ)
@@ -9,7 +16,9 @@ export function getCurrentDate(): Date {
 
 export function getSessionId(): string {
   const now = getCurrentDate()
-  const localISOTime = now.toISOString().slice(0, -1)
+  // https://stackoverflow.com/a/28149561
+  const tzoffset = now.getTimezoneOffset() * 60000
+  const localISOTime = new Date(now.getTime() - tzoffset).toISOString()
   return localISOTime.slice(0, 10) + (isMorning(now) ? '-0' : '-1')
 }
 
@@ -18,9 +27,33 @@ export function isMorning(date: Date): boolean {
 }
 
 export function numberOfHalfDays(from: Date, to: Date): number {
-  from = isMorning(from) ? startOfDay(from) : endOfDay(from)
-  to = isMorning(to) ? startOfDay(to) : endOfDay(to)
-  return Math.floor(differenceInHours(to, from) / 12)
+  from = isMorning(from)
+    ? addHours(startOfDay(from), 5)
+    : subHours(endOfDay(from), 5)
+  to = isMorning(to) ? addHours(startOfDay(to), 5) : subHours(endOfDay(to), 5)
+
+  const hours = nearestMultiple(differenceInHours(to, from), 6)
+
+  return Math.floor(hours / 12)
+}
+
+export function numberOfGamesSinceStart(): number {
+  const startDate = utcToZonedTime(
+    new Date(GAME_STARTING_DATE as string),
+    BXL_TZ,
+  )
+
+  return numberOfHalfDays(startDate, getCurrentDate())
+}
+
+function nearestMultiple(val: number, mul: number): number {
+  const resto = val % mul
+  if (resto <= mul / 2) {
+    return val - resto
+  }
+  else {
+    return val + mul - resto
+  }
 }
 
 export function shuffle<T>(array: T[]): T[] {
@@ -42,8 +75,6 @@ export function shuffle<T>(array: T[]): T[] {
 
   return array
 }
-
-export const random = initPRNG()
 
 /**
  * https://stackoverflow.com/a/7616484
@@ -88,7 +119,12 @@ function mulberry32(a: number) {
 
 function initPRNG(): () => number {
   // Prefix the seed when in dev to avoid spoiling myself while working on it
-  const prefix = import.meta.env.DEV ? 'dev-' : ''
+  let prefix = import.meta.env.DEV ? 'dev-' : ''
+  if (numberOfGamesSinceStart() > words.length) {
+    prefix += Math.floor(numberOfGamesSinceStart() / words.length)
+  }
   const hashed = hashStr(prefix + GAME_STARTING_DATE)
   return mulberry32(hashed)
 }
+
+export const random = initPRNG()

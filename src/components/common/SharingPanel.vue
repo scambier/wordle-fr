@@ -5,7 +5,7 @@
     </ButtonGreen>
     <div class="p-2">
       <div
-        class="p-2 text-xs text-left rounded border-2 border-white/20"
+        class="rounded border-2 border-white/20 p-2 text-left text-xs"
         v-html="getSharingText().replace(/(?:\r\n|\r|\n)/g, '<br>')" />
     </div>
   </div>
@@ -17,11 +17,12 @@ import {
   getLettersColors,
   guesses,
   isWinner,
-  numberOfGamesSinceStart,
   wordToFind,
 } from '@/composables/game-state'
+import { gameStats } from '@/composables/statistics'
 import { showToast } from '@/composables/toast-manager'
-import { KeyColor } from '@/constants'
+import { KeyColor, OLD_COUNT } from '@/constants'
+import { numberOfGamesSinceStart } from '@/utils'
 import IconShare from '~icons/ph/share-network'
 
 import ButtonGreen from './ButtonGreen.vue'
@@ -50,9 +51,9 @@ function getSharingText(): string {
     )
   }
   const tries = `✔️ ${countTotalGuesses.value}/6`
-  return `Mo-mo-motus n°${numberOfGamesSinceStart()}\n${emojis
-    .filter(o => !!o)
-    .join('\n')}${
+  return `Mo-mo-motus n°${numberOfGamesSinceStart() + OLD_COUNT}\nSérie: ${
+    gameStats.currentStreak
+  }\n${emojis.filter(o => !!o).join('\n')}${
     isWinner.value ? tries : '❌'
   }\nhttps://scambier.xyz/momomotus/`
 }

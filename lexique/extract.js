@@ -32,7 +32,6 @@ fs.readFile(path.join(__dirname, '/liste-reduite.txt'), function (err, data) {
     }
   }
   const set = [...new Set(withoutDupes)]
-  console.log(set.length + ' words')
 
   fs.writeFileSync(
     path.join(__dirname, '/../src/words-list.ts'),
@@ -51,7 +50,6 @@ fs.readFile(path.join(__dirname, '/ods6.txt'), function (err, data) {
 
   const filtered = words.filter(o => o.length === 5)
   const set = [...new Set(filtered)]
-  console.log(set.length + ' guesses')
 
   fs.writeFileSync(
     path.join(__dirname, '/../src/guesses-list.ts'),

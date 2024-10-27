@@ -28,7 +28,7 @@ watch(lastWelcomeDate, v => {
  * Defaults to true if the welcome screen was not shown for at least 2 days
  */
 export const isVisibleModalWelcome = ref(
-  differenceInDays(now, lastWelcomeDate.value) >= 2,
+  differenceInDays(now, lastWelcomeDate.value) >= 7,
 )
 
 if (isVisibleModalWelcome.value) {

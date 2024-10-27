@@ -9,13 +9,12 @@ import router from './router'
 
 registerSW({
   onOfflineReady() {
-    showToast(
-      'Ce jeu peut être installé<br>pour fonctionner hors-ligne.',
-      2000,
-    )
+    showToast('Ce jeu peut être installé<br>pour fonctionner hors-ligne.', 2000)
   },
 })
 
 const app = createApp(App)
+
 app.use(router)
+
 app.mount('#app')
