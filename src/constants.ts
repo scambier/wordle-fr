@@ -6,6 +6,7 @@ export const K_WORDS = 'mts_words'
 export const K_WELCOME = 'mts_lastWelcome'
 export const K_LEXICON = 'mts_lexiconHash'
 export const K_STATS = 'mts_stats'
+export const K_LASTSYNC = 'mts_lastsync'
 
 // export const GAME_STARTING_DATE = '2022-01-12'
 export const GAME_STARTING_DATE = '2024-05-04'

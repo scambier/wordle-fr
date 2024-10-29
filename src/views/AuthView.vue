@@ -1,8 +1,9 @@
 <script setup lang="ts">
-import { onMounted, ref } from 'vue'
+import { ref } from 'vue'
 
-import { pb } from '@/api'
+import { pb, synchronizeScores } from '@/api'
 import ButtonGreen from '@/components/common/ButtonGreen.vue'
+import router from '@/router';
 
 const email = ref('')
 const otpId = ref<string | null>(null)
@@ -17,7 +18,7 @@ async function requestOTP(): Promise<void> {
     otpId.value = result.otpId
   }
   catch (error) {
-    console.error(error)
+    console.error('Error requesting OTP:', error)
   }
 }
 
@@ -27,7 +28,8 @@ async function validateCode(): Promise<void> {
       return
     }
     await pb.collection('users').authWithOTP(otpId.value, otpCode.value)
-    location.reload()
+    await synchronizeScores()
+    router.push('/')
   }
   catch (error) {
     console.error(error)
@@ -62,7 +64,7 @@ function logout(): void {
           <div>
             <input
               v-model="email"
-              type="text"
+              type="email"
               placeholder="Email"
               class="my-2 rounded text-black">
           </div>

@@ -7,6 +7,7 @@ import {
 } from 'date-fns'
 import { computed, reactive, watch } from 'vue'
 
+import { synchronizeState } from '@/api'
 import { K_WORDS, KeyColor } from '@/constants'
 import acceptedGuesses from '@/guesses-list'
 import * as storage from '@/storage'
@@ -43,13 +44,14 @@ export const guesses = reactive<WordInput[]>([
 ])
 watch(
   () => guesses.filter(o => o.confirmed).map(o => o.word),
-  words => {
+  async words => {
     if (words.filter(w => !!w).length === 1) {
       // Register a "start_game" event once the first word is input
       umami.track('start_game')
     }
     // Save confirmed words in storage to re-add them after a refresh
     storage.setItem(K_WORDS, JSON.stringify(words))
+    // await synchronizeState()
   },
 )
 

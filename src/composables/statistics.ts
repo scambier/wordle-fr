@@ -8,7 +8,7 @@ import { getSessionId } from '@/utils'
 
 import { countTotalGuesses, isWinner } from './game-state'
 
-export const gameStats = reactive<GameStats>(loadStats())
+export const gameStats = reactive(loadStats())
 
 // Triggered when the list of played games has changed
 watch(
@@ -37,7 +37,7 @@ watch(
   { deep: true, immediate: true },
 )
 
-function loadStats(): GameStats {
+export function loadStats(): GameStats {
   const stats: GameStats = {
     bestStreak: 0,
     currentStreak: 0,

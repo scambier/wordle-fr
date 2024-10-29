@@ -54,9 +54,11 @@ import {
   onUnmounted,
   reactive,
   ref,
+  watch,
   watchEffect,
 } from 'vue'
 
+import { needToReloadWords, synchronizeScores, synchronizeState } from '@/api'
 import LetterBox from '@/components/common/LetterBox.vue'
 import SiteHeader from '@/components/SiteHeader.vue'
 import VisualKeyboard from '@/components/VisualKeyboard.vue'
@@ -73,6 +75,10 @@ import { loadConfirmedWords } from '@/storage'
 
 const grid = ref<HTMLDivElement | null>(null)
 watchEffect(() => onSizeChange)
+
+watch(needToReloadWords, () => {
+  loadSavedWordsIntoGuesses()
+})
 
 /**
  * Animating the letters color changes
@@ -241,19 +247,24 @@ function stopBlinkingCaret(): void {
   }
 }
 
-onMounted(() => {
-  window.addEventListener('resize', onSizeChange)
-  document.addEventListener('keydown', onKeyPress) // Note: 'keypress' doesn't work for backspace
-  startBlinkingCaret()
-
-  /**
-   * Load saved words at startup
-   */
+/**
+ * Load saved words at startup
+ */
+function loadSavedWordsIntoGuesses(): void {
   const savedWords = loadConfirmedWords()
   for (let i = 0; i < savedWords.length; ++i) {
     guesses[i].word = savedWords[i]
     inputWord()
   }
+}
+
+onMounted(async () => {
+  await synchronizeScores()
+  // await synchronizeState()
+  window.addEventListener('resize', onSizeChange)
+  document.addEventListener('keydown', onKeyPress) // Note: 'keypress' doesn't work for backspace
+  startBlinkingCaret()
+  loadSavedWordsIntoGuesses()
 })
 
 onUnmounted(() => {
