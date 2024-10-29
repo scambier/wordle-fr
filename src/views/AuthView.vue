@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 
-import { pb, synchronizeScores } from '@/api'
+import { initialScoreSync, pb } from '@/api'
 import ButtonGreen from '@/components/common/ButtonGreen.vue'
-import router from '@/router';
+import router from '@/router'
 
 const email = ref('')
 const otpId = ref<string | null>(null)
@@ -28,7 +28,7 @@ async function validateCode(): Promise<void> {
       return
     }
     await pb.collection('users').authWithOTP(otpId.value, otpCode.value)
-    await synchronizeScores()
+    await initialScoreSync()
     router.push('/')
   }
   catch (error) {

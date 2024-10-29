@@ -58,7 +58,7 @@ import {
   watchEffect,
 } from 'vue'
 
-import { needToReloadWords, synchronizeScores, synchronizeState } from '@/api'
+import { initialScoreSync, needToReloadWords, synchronizeScores } from '@/api'
 import LetterBox from '@/components/common/LetterBox.vue'
 import SiteHeader from '@/components/SiteHeader.vue'
 import VisualKeyboard from '@/components/VisualKeyboard.vue'
@@ -71,7 +71,7 @@ import {
 import { saveScore } from '@/composables/statistics'
 import { showToast } from '@/composables/toast-manager'
 import { ANIM_SPEED, KeyColor } from '@/constants'
-import { loadConfirmedWords } from '@/storage'
+import { useGridStore } from '@/stores/grid'
 
 const grid = ref<HTMLDivElement | null>(null)
 watchEffect(() => onSizeChange)
@@ -85,6 +85,12 @@ watch(needToReloadWords, () => {
  */
 const animating = ref(false)
 const isCaretVisible = ref(true)
+
+const gridStore = useGridStore()
+
+gridStore.$subscribe((mutation, state) => {
+  loadSavedWordsIntoGuesses()
+})
 
 const currentGuess = computed(() => guesses.find(o => !o.confirmed))
 const currentRowIndex = computed(() =>
@@ -251,7 +257,7 @@ function stopBlinkingCaret(): void {
  * Load saved words at startup
  */
 function loadSavedWordsIntoGuesses(): void {
-  const savedWords = loadConfirmedWords()
+  const savedWords = gridStore.savedWords
   for (let i = 0; i < savedWords.length; ++i) {
     guesses[i].word = savedWords[i]
     inputWord()
@@ -259,8 +265,8 @@ function loadSavedWordsIntoGuesses(): void {
 }
 
 onMounted(async () => {
+  await initialScoreSync()
   await synchronizeScores()
-  // await synchronizeState()
   window.addEventListener('resize', onSizeChange)
   document.addEventListener('keydown', onKeyPress) // Note: 'keypress' doesn't work for backspace
   startBlinkingCaret()

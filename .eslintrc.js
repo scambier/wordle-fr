@@ -6,6 +6,7 @@ module.exports = {
   },
   globals: {
     NodeJS: true,
+    umami: 'readonly',
   },
   extends: [
     'plugin:vue/vue3-strongly-recommended',

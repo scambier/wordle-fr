@@ -1,5 +1,6 @@
 import './index.css'
 
+import { createPinia } from 'pinia'
 import { registerSW } from 'virtual:pwa-register'
 import { createApp } from 'vue'
 
@@ -16,5 +17,6 @@ registerSW({
 const app = createApp(App)
 
 app.use(router)
+app.use(createPinia())
 
 app.mount('#app')

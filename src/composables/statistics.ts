@@ -1,6 +1,7 @@
 import { merge } from 'lodash-es'
 import { reactive, watch } from 'vue'
 
+import { synchronizeScores } from '@/api'
 import { K_STATS } from '@/constants'
 import * as storage from '@/storage'
 import { GameStats } from '@/types'
@@ -70,4 +71,5 @@ function setScore(seed: string, won: boolean, score: number): void {
 
 export function saveScore(): void {
   setScore(getSessionId(), isWinner.value, countTotalGuesses.value)
+  synchronizeScores()
 }

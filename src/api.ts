@@ -1,8 +1,8 @@
-import PocketBase, { RecordService, UnsubscribeFunc } from 'pocketbase'
+import PocketBase, { RecordService } from 'pocketbase'
 import { ref } from 'vue'
 
 import { gameStats, loadStats } from './composables/statistics'
-import { K_WORDS } from './constants'
+import { getItem } from './storage'
 
 type SyncedGame = {
   won: boolean
@@ -15,6 +15,7 @@ type SyncedState = {
   id: string
   user: string
   words: string[]
+  game_id: string
 }
 
 interface TypedPocketBase extends PocketBase {
@@ -27,8 +28,6 @@ export const pb = new PocketBase(import.meta.env.VITE_PB_URL) as TypedPocketBase
 
 export const needToReloadWords = ref('')
 
-let stateSubscription: UnsubscribeFunc | null = null
-
 export function isLoggedIn(): boolean {
   return !!pb.authStore.record
 }
@@ -37,19 +36,27 @@ export function isLoggedIn(): boolean {
  * Sends all the games to the backend in a single query
  */
 export async function initialScoreSync(): Promise<void> {
-  if (!isLoggedIn()) return
-
-  const stats = loadStats()
-  const games = Object.entries(stats.games).map(([date, { score, won }]) => ({
-    date,
-    score,
-    won,
-    user: pb.authStore.record?.id ?? '',
-  }))
-  await pb.send('/motus/games/batch', {
-    method: 'POST',
-    body: games,
-  })
+  try {
+    if (!isLoggedIn()) return
+    const stats = loadStats()
+    if (!getItem('mts_lastsync')) {
+      const games = Object.entries(stats.games).map(
+        ([date, { score, won }]) => ({
+          date,
+          score,
+          won,
+          user: pb.authStore.record?.id ?? '',
+        }),
+      )
+      await pb.send('/motus/games/batch', {
+        method: 'POST',
+        body: JSON.stringify({ games }),
+      })
+    }
+  }
+  catch (e) {
+    console.error('Error syncing scores:', e)
+  }
 }
 
 /**
@@ -118,79 +125,44 @@ export async function synchronizeScores(): Promise<void> {
   }
 }
 
-// export async function fetchState(): Promise<void> {
-//   try {
-//     if (!isLoggedIn()) {
-//       return
-//     }
-
-//     let existingId: string
-//     const existing = (
-//       await pb.collection('motus_state').getList(1, 1, {
-//         filter: pb.filter('user = {:user}', { user: pb.authStore.record?.id }),
-//       })
-//     ).items
-//     if (existing.length) {
-//       existingId = existing[0].id
-//       await pb.collection('motus_state').update(existingId, { words })
-//     }
-//     else {
-//       existingId = (
-//         await pb
-//           .collection('motus_state')
-//           .create({ user: pb.authStore.record?.id, words })
-//       ).id
-//     }
-
-//   }
-//   catch (e) {
-//     console.error(e)
-//   }
-// }
-
-export async function synchronizeState(): Promise<void> {
-  try {
-    if (!isLoggedIn()) {
-      return
-    }
-
-    let words = []
-    try {
-      words = JSON.parse(localStorage.getItem(K_WORDS) ?? '[]')
-    }
-    catch (e) {
-      words = []
-    }
-    let existingId: string
-    const existing = (
-      await pb.collection('motus_state').getList(1, 1, {
-        filter: pb.filter('user = {:user}', { user: pb.authStore.record?.id }),
-      })
-    ).items
-    if (existing.length) {
-      existingId = existing[0].id
-      await pb.collection('motus_state').update(existingId, { words })
-    }
-    else {
-      existingId = (
-        await pb
-          .collection('motus_state')
-          .create({ user: pb.authStore.record?.id, words })
-      ).id
-    }
-
-    if (!stateSubscription) {
-      stateSubscription = await pb
-        .collection('motus_state')
-        // FIXME: with correct id once pocketbase is correctly updated
-        .subscribe('*', data => {
-          localStorage.setItem(K_WORDS, JSON.stringify(data.record.words))
-          needToReloadWords.value = new Date().toISOString()
-        })
-      console.log('subscribed')
-    }
+export async function fetchWordsGrid(): Promise<SyncedState | undefined> {
+  if (!isLoggedIn()) {
+    return
   }
-  catch (e) {
-    console.error(e)
+  const existing = (
+    await pb.collection('motus_state').getList(1, 1, {
+      filter: pb.filter('user = {:user}', { user: pb.authStore.record?.id }),
+    })
+  ).items
+  if (existing.length) {
+    return existing[0]
+  }
+}
+
+export async function postWordsGrid(
+  words: string[],
+  gameId: string,
+): Promise<void> {
+  if (!isLoggedIn()) {
+    return
+  }
+  let existingId: string
+  const existing = (
+    await pb.collection('motus_state').getList(1, 1, {
+      filter: pb.filter('user = {:user}', { user: pb.authStore.record?.id }),
+    })
+  ).items
+  if (existing.length) {
+    existingId = existing[0].id
+    await pb
+      .collection('motus_state')
+      .update(existingId, { words, game_id: gameId })
+  }
+  else {
+    existingId = (
+      await pb
+        .collection('motus_state')
+        .create({ user: pb.authStore.record?.id, words, game_id: gameId })
+    ).id
   }
 }
