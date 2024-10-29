@@ -34,6 +34,25 @@ export function isLoggedIn(): boolean {
 }
 
 /**
+ * Sends all the games to the backend in a single query
+ */
+export async function initialScoreSync(): Promise<void> {
+  if (!isLoggedIn()) return
+
+  const stats = loadStats()
+  const games = Object.entries(stats.games).map(([date, { score, won }]) => ({
+    date,
+    score,
+    won,
+    user: pb.authStore.record?.id ?? '',
+  }))
+  await pb.send('/motus/games/batch', {
+    method: 'POST',
+    body: games,
+  })
+}
+
+/**
  * Synchronizes the score history with the backend
  * @returns
  */
@@ -42,7 +61,7 @@ export async function synchronizeScores(): Promise<void> {
     if (!isLoggedIn()) {
       return
     }
-    console.log('syncing scores')
+    console.log('Syncing scores')
 
     // Send to backend
 
@@ -62,7 +81,7 @@ export async function synchronizeScores(): Promise<void> {
       if (!/^\d{4}-\d{2}-\d{2}-[01]$/.test(key)) {
         continue
       }
-      if (key > lastSync.toISOString()) {
+      if (key.slice(0, 10) >= lastSync.toISOString().slice(0, 10)) {
         const game = stats.games[key]
         try {
           await pb.collection('motus_games').create({
