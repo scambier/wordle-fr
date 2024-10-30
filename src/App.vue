@@ -47,6 +47,7 @@ import {
 } from './composables/modal-manager'
 import { BXL_TZ } from './constants'
 import { hasSessionIdChanged } from './storage'
+import { useGridStore } from './stores/grid'
 
 onMounted(() => {
   initSessionForToday()
@@ -61,9 +62,11 @@ onUnmounted(() => {
  * This will reset the game and empty the board,
  * if a new puzzle has started
  */
-function checkAndReset(): void {
+async function checkAndReset(): Promise<void> {
+  await useGridStore().fetchFromBackend()
   if (hasSessionIdChanged()) {
     initSessionForToday()
+    // TODO: don't reload, do something cleaner?
     location.reload()
   }
 }

@@ -257,9 +257,8 @@ function stopBlinkingCaret(): void {
  * Load saved words at startup
  */
 function loadSavedWordsIntoGuesses(): void {
-  const savedWords = gridStore.savedWords
-  for (let i = 0; i < savedWords.length; ++i) {
-    guesses[i].word = savedWords[i]
+  for (let i = 0; i < gridStore.words.length; ++i) {
+    guesses[i].word = gridStore.words[i]
     inputWord()
   }
 }

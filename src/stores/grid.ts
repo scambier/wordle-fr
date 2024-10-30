@@ -1,58 +1,55 @@
 import { useStorage } from '@vueuse/core'
 import { defineStore } from 'pinia'
 import { UnsubscribeFunc } from 'pocketbase'
+import { computed } from 'vue'
 
 import { fetchWordsGrid, pb, postWordsGrid } from '@/api'
-import { setItem } from '@/storage'
 import { getSessionId } from '@/utils'
 
-const STORE_NAME = 'mts_grid'
+const GRID_STORE_NAME = 'mts_grid'
 
 let initialSync = false
 
-export const useGridStore = () => {
-  const gridStore = defineStore(STORE_NAME, {
-    state: () => {
-      return useStorage(STORE_NAME, {
-        words: [] as string[],
-        lastSync: null as string | null,
-        gameId: null as string | null,
-      })
-    },
-    getters: {
-      savedWords(state): string[] {
-        return state.words
-      },
-    },
-    actions: {
-      async setWords(words: string[], sync = true): Promise<void> {
-        this.words = words
-        this.lastSync = new Date().toISOString()
-        this.gameId = getSessionId()
-        // Sync with backend
-        if (sync) await postWordsGrid(words, this.gameId)
-        // Save in localStorage
-        setItem(STORE_NAME, JSON.stringify(this.$state))
-      },
-
-      async fetchFromBackend(): Promise<void> {
-        const data = await fetchWordsGrid()
-        if (data?.game_id === getSessionId()) {
-          this.words = data.words
-          this.lastSync = new Date().toISOString()
-          this.gameId = getSessionId()
-        }
-      },
-    },
+export const useGridStore = defineStore(GRID_STORE_NAME, () => {
+  const state = useStorage(GRID_STORE_NAME, {
+    words: [] as string[],
+    lastSync: null as string | null,
+    gameId: null as string | null,
   })
-  const s = gridStore()
+
+  const words = computed(() => state.value.words)
+
+  async function setWords(words: string[], sync = true): Promise<void> {
+    state.value.words = words
+    state.value.lastSync = new Date().toISOString()
+    state.value.gameId = getSessionId()
+    // Sync with backend
+    if (sync) postWordsGrid(words, state.value.gameId)
+  }
+
+  async function fetchFromBackend(): Promise<void> {
+    const data = await fetchWordsGrid()
+    if (data?.game_id === getSessionId()) {
+      state.value.words = data.words
+      state.value.lastSync = new Date().toISOString()
+      state.value.gameId = getSessionId()
+    }
+    else {
+      $reset()
+    }
+  }
+
+  function $reset(): void {
+    state.value = null
+  }
+
   if (!initialSync) {
-    s.fetchFromBackend()
+    fetchFromBackend()
     initialSync = true
   }
 
-  return s
-}
+  return { setWords, words, $reset, fetchFromBackend }
+})
 
 let stateSubscription: UnsubscribeFunc | null = null
 if (!stateSubscription) {

@@ -125,18 +125,16 @@ export async function synchronizeScores(): Promise<void> {
   }
 }
 
-export async function fetchWordsGrid(): Promise<SyncedState | undefined> {
+export async function fetchWordsGrid(): Promise<SyncedState | null> {
   if (!isLoggedIn()) {
-    return
+    return null
   }
   const existing = (
     await pb.collection('motus_state').getList(1, 1, {
       filter: pb.filter('user = {:user}', { user: pb.authStore.record?.id }),
     })
   ).items
-  if (existing.length) {
-    return existing[0]
-  }
+  return existing?.[0] ?? null
 }
 
 export async function postWordsGrid(

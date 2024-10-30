@@ -1,6 +1,7 @@
 import { getSessionId } from '@/utils'
 
 import { K_SESSION } from './constants'
+import { useGridStore } from './stores/grid'
 
 export function setItem(k: string, v: string): void {
   return localStorage.setItem(k, v)
@@ -32,6 +33,7 @@ export function cleanState(): boolean {
 
   // Outdated session
   if (getItem(K_SESSION) !== appSessionKey) {
+    useGridStore().$reset()
     localStorage.removeItem(K_SESSION)
     setItem(K_SESSION, appSessionKey)
     return true
@@ -42,5 +44,5 @@ export function cleanState(): boolean {
 }
 
 export function hasSessionIdChanged(): boolean {
-  return !!getItem(K_SESSION) && getItem(K_SESSION) !== getSessionId()
+  return getItem(K_SESSION) !== getSessionId()
 }
