@@ -24,7 +24,9 @@
     ],
     "skipLibCheck": true,
     "types": [
-      "unplugin-icons/types/vue"
+      "unplugin-icons/types/vue",
+      "vite-plugin-pwa/info.d.ts",
+      "vite-plugin-pwa/client.d.ts"
     ]
   },
   "include": [
