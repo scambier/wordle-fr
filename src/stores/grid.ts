@@ -56,6 +56,10 @@ export const useGridStore = () => {
 
 let stateSubscription: UnsubscribeFunc | null = null
 if (!stateSubscription) {
+  subscribeToState()
+}
+
+async function subscribeToState(): Promise<void> {
   stateSubscription = await pb
     .collection('motus_state')
     // FIXME: with correct id once pocketbase is correctly updated
