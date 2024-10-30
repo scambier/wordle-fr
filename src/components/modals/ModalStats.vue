@@ -1,6 +1,6 @@
 <template>
   <ModalBase @close="isVisibleModalStats = false">
-    <div class="mb-2 text-2xl border-b border-slate-400">
+    <div class="mb-2 border-b border-slate-400 text-2xl">
       Statistiques
     </div>
     <div class="flex justify-between">
@@ -14,15 +14,15 @@
           v-html="item.label" />
       </div>
     </div>
-    <div class="my-4 w-full text-xs text-left">
+    <div class="my-4 w-full text-left text-xs">
       <div
-        class="flex mb-1 w-full h-4"
+        class="mb-1 flex h-4 w-full"
         v-for="i in [1, 2, 3, 4, 5, 6, 0]"
         :key="`bar-${i}`">
         <span class="mr-1 w-6 text-center">{{ i ? i : '❌' }}</span>
         <div class="w-full">
           <div
-            class="min-w-fit max-w-full font-bold text-right"
+            class="min-w-fit max-w-full text-right font-bold"
             :class="{
               'bg-green-dimmed': gamesOfScore(i) > 0,
               'bg-gray-600': gamesOfScore(i) === 0 || i === 0,

@@ -4,7 +4,7 @@
     <div
       v-for="(line, i) in keyboard"
       :key="`line-${i}`"
-      class="flex gap-1 justify-center mb-1 w-full h-1/3">
+      class="mb-1 flex h-1/3 w-full justify-center gap-1">
       <!-- Keys -->
       <template
         v-for="(letter, j) in line"
@@ -16,7 +16,7 @@
           @click="emit('enter')"
           title="Entrée"
           class="flex basis-[calc(15%+5px)] flex-col bg-slate-700 active:bg-slate-600">
-          <IconReturn class="w-8 h-8" />
+          <IconReturn class="size-8" />
         </LetterBox>
 
         <!-- Letter -->
@@ -35,7 +35,7 @@
           @click="emit('backspace')"
           title="Effacer"
           class="basis-[calc(15%+5px)] bg-slate-700 active:bg-slate-600">
-          <IconBackspace class="w-8 h-8" />
+          <IconBackspace class="size-8" />
         </LetterBox>
       </template>
     </div>

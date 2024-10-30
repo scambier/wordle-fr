@@ -14,10 +14,10 @@
             v-for="x in [0, 1, 2, 3, 4]"
             class="h-full border text-3xl font-bold uppercase md:text-4xl"
             :class="{
-              'bg-green-dimmed border-green-dimmed':
+              'border-green-dimmed bg-green-dimmed':
                 guesses[y].confirmed &&
                 getLettersColors(guesses[y].word)[x] === KeyColor.Green,
-              'bg-yellow-dimmed border-yellow-dimmed':
+              'border-yellow-dimmed bg-yellow-dimmed':
                 guesses[y].confirmed &&
                 getLettersColors(guesses[y].word)[x] === KeyColor.Yellow,
               'border-slate-700 bg-slate-700':
@@ -238,7 +238,7 @@ function getLetter(wordIndex: number, letterIndex: number): string {
   return '&nbsp;'
 }
 
-let timerCaret: NodeJS.Timer
+let timerCaret: NodeJS.Timeout
 function startBlinkingCaret(): void {
   stopBlinkingCaret()
   isCaretVisible.value = true

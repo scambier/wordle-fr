@@ -1,12 +1,12 @@
 <template>
   <div
-    class="flex absolute top-0 left-0 justify-center w-full h-full bg-black/40">
+    class="absolute left-0 top-0 flex size-full justify-center bg-black/40">
     <!-- Content -->
     <div
-      class="relative p-4 pt-8 m-4 mt-16 w-[32rem] max-w-full h-fit text-lg text-center bg-slate-900 rounded-lg border-2 border-slate-600">
+      class="relative m-4 mt-16 h-fit w-[32rem] max-w-full rounded-lg border-2 border-slate-600 bg-slate-900 p-4 pt-8 text-center text-lg">
       <button
         aria-label="Fermer"
-        class="absolute top-2 right-2 text-xl"
+        class="absolute right-2 top-2 text-xl"
         @click="emit('close', false)">
         <IconClose />
       </button>

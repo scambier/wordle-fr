@@ -41,7 +41,6 @@ export function cleanState(): boolean {
   return false
 }
 
-
 export function hasSessionIdChanged(): boolean {
   return !!getItem(K_SESSION) && getItem(K_SESSION) !== getSessionId()
 }
