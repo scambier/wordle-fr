@@ -5,7 +5,6 @@ import { computed } from 'vue'
 
 import { fetchWordsGrid, pb, postWordsGrid } from '@/api'
 import { getSessionId } from '@/utils'
-import { sub } from 'date-fns'
 
 const GRID_STORE_NAME = 'mts_grid'
 
@@ -26,7 +25,7 @@ export const useGridStore = defineStore(GRID_STORE_NAME, () => {
     state.value.updated = new Date().toISOString()
     state.value.game_id = getSessionId()
     // Sync with backend
-    if (sync) postWordsGrid(words, state.value.game_id)
+    if (sync) await postWordsGrid(words, state.value.game_id)
   }
 
   async function fetchFromBackend(): Promise<void> {
@@ -53,15 +52,19 @@ export const useGridStore = defineStore(GRID_STORE_NAME, () => {
   }
 
   if (!stateSubscription) {
-    subscribeToState()
+    subscribeToState().then(sub => {
+      stateSubscription = sub
+      console.log('Subscribed for SSEs.')
+    })
+
     // setTimeout(subscribeToState, 0)
   }
 
   return { setWords, words, $reset, fetchFromBackend, state }
 })
 
-async function subscribeToState(): Promise<void> {
-  stateSubscription = await pb
+async function subscribeToState(): Promise<UnsubscribeFunc> {
+  return await pb
     .collection('motus_state')
     // FIXME: with correct id once pocketbase is correctly updated
     .subscribe('*', data => {
@@ -71,5 +74,4 @@ async function subscribeToState(): Promise<void> {
       }
       gridStore.setWords(data.record.words, false)
     })
-    console.log('Subscribed for SSEs.')
 }

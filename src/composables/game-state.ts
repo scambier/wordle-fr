@@ -42,9 +42,7 @@ watch(
       // Register a "start_game" event once the first word is input
       umami.track('start_game')
     }
-    const gridStore = useGridStore()
-
-    gridStore.setWords(words)
+    await useGridStore().setWords(words)
   },
 )
 

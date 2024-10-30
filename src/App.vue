@@ -63,7 +63,7 @@ onUnmounted(() => {
  * if a new puzzle has started
  */
 async function checkAndReset(): Promise<void> {
-  await useGridStore().fetchFromBackend()
+  // await useGridStore().fetchFromBackend()
   if (hasSessionIdChanged()) {
     initSessionForToday()
     // TODO: don't reload, do something cleaner?

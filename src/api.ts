@@ -139,6 +139,7 @@ export async function fetchWordsGrid(): Promise<SyncedState | null> {
   }
   const existing = (
     await pb.collection('motus_state').getList(1, 1, {
+      requestKey: null, // Disable auto cancellation
       filter: pb.filter('user = {:user}', { user: pb.authStore.record?.id }),
     })
   ).items
@@ -158,6 +159,7 @@ export async function postWordsGrid(
       filter: pb.filter('user = {:user}', { user: pb.authStore.record?.id }),
     })
   ).items
+
   if (existing.length) {
     existingId = existing[0].id
     await pb
