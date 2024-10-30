@@ -5,37 +5,41 @@ import { computed } from 'vue'
 
 import { fetchWordsGrid, pb, postWordsGrid } from '@/api'
 import { getSessionId } from '@/utils'
+import { sub } from 'date-fns'
 
 const GRID_STORE_NAME = 'mts_grid'
 
 let initialSync = false
+let stateSubscription: UnsubscribeFunc | null = null
 
 export const useGridStore = defineStore(GRID_STORE_NAME, () => {
   const state = useStorage(GRID_STORE_NAME, {
     words: [] as string[],
-    lastSync: null as string | null,
-    gameId: null as string | null,
+    updated: new Date(0).toISOString(),
+    game_id: null as string | null,
   })
 
   const words = computed(() => state.value.words)
 
   async function setWords(words: string[], sync = true): Promise<void> {
     state.value.words = words
-    state.value.lastSync = new Date().toISOString()
-    state.value.gameId = getSessionId()
+    state.value.updated = new Date().toISOString()
+    state.value.game_id = getSessionId()
     // Sync with backend
-    if (sync) postWordsGrid(words, state.value.gameId)
+    if (sync) postWordsGrid(words, state.value.game_id)
   }
 
   async function fetchFromBackend(): Promise<void> {
     const data = await fetchWordsGrid()
-    if (data?.game_id === getSessionId()) {
-      state.value.words = data.words
-      state.value.lastSync = new Date().toISOString()
-      state.value.gameId = getSessionId()
-    }
-    else {
-      $reset()
+    if (data) {
+      if (
+        data.game_id === getSessionId() &&
+        data.updated > state.value.updated
+      ) {
+        state.value.words = data.words
+        state.value.updated = data.updated
+        state.value.game_id = getSessionId()
+      }
     }
   }
 
@@ -48,13 +52,13 @@ export const useGridStore = defineStore(GRID_STORE_NAME, () => {
     initialSync = true
   }
 
-  return { setWords, words, $reset, fetchFromBackend }
-})
+  if (!stateSubscription) {
+    subscribeToState()
+    // setTimeout(subscribeToState, 0)
+  }
 
-let stateSubscription: UnsubscribeFunc | null = null
-if (!stateSubscription) {
-  subscribeToState()
-}
+  return { setWords, words, $reset, fetchFromBackend, state }
+})
 
 async function subscribeToState(): Promise<void> {
   stateSubscription = await pb
@@ -62,6 +66,10 @@ async function subscribeToState(): Promise<void> {
     // FIXME: with correct id once pocketbase is correctly updated
     .subscribe('*', data => {
       const gridStore = useGridStore()
+      if (data.record.game_id !== gridStore.state.game_id) {
+        return
+      }
       gridStore.setWords(data.record.words, false)
     })
+    console.log('Subscribed for SSEs.')
 }

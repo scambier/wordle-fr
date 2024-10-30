@@ -17,6 +17,15 @@ watchEffect(() => {
   isVisibleModalLoser.value = isGameover.value && !isWinner.value
 })
 
+watch(isGameover, val => {
+  // Gameover switches to true
+  if (val) {
+    setTimeout(() => {
+      isVisibleModalStats.value = true
+    }, 200 * 7 + 1000)
+  }
+})
+
 const now = getCurrentDate()
 
 const lastWelcomeDate = ref(new Date(getItem(K_WELCOME, '1970-01-01')))

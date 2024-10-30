@@ -10,7 +10,7 @@ export function getItem(k: string): string | null
 export function getItem(k: string, defaultValue: string): string
 export function getItem(k: string, defaultValue?: string): string | null {
   try {
-    return localStorage.getItem(k) ?? null
+    return localStorage.getItem(k) ?? defaultValue ?? null
   }
   catch (e) {
     return defaultValue ?? null

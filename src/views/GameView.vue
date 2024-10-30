@@ -58,7 +58,7 @@ import {
   watchEffect,
 } from 'vue'
 
-import { initialScoreSync, needToReloadWords, synchronizeScores } from '@/api'
+import { needToReloadWords, synchronizeScores } from '@/api'
 import LetterBox from '@/components/common/LetterBox.vue'
 import SiteHeader from '@/components/SiteHeader.vue'
 import VisualKeyboard from '@/components/VisualKeyboard.vue'
@@ -264,7 +264,6 @@ function loadSavedWordsIntoGuesses(): void {
 }
 
 onMounted(async () => {
-  await initialScoreSync()
   await synchronizeScores()
   window.addEventListener('resize', onSizeChange)
   document.addEventListener('keydown', onKeyPress) // Note: 'keypress' doesn't work for backspace

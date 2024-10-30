@@ -27,13 +27,6 @@ export const shuffled: Readonly<string[]> = shuffle(words)
 export const wordToFindAccented = getWordForToday()
 export const wordToFind = normalizeWord(wordToFindAccented)
 
-export const isWinner = computed(() =>
-  guesses.some(o => o.confirmed && o.word === wordToFind),
-)
-export const isGameover = computed(
-  () => isWinner.value || guesses.every(o => o.confirmed),
-)
-
 export const guesses = reactive<WordInput[]>([
   { word: '', confirmed: false },
   { word: '', confirmed: false },
@@ -55,20 +48,18 @@ watch(
   },
 )
 
+export const isWinner = computed(() =>
+  guesses.some(o => o.confirmed && o.word === wordToFind),
+)
+export const isGameover = computed(
+  () => isWinner.value || guesses.every(o => o.confirmed),
+)
+
 /**
  * Number of tries it took to find the answer
  */
 export const countTotalGuesses = computed<number>(() => {
   return guesses.filter(o => !!o.word && o.confirmed).length
-})
-
-watch(isGameover, val => {
-  // Gameover switches to true
-  if (val) {
-    setTimeout(() => {
-      isVisibleModalStats.value = true
-    }, 200 * 7 + 1000)
-  }
 })
 
 export function initSessionForToday(): void {
