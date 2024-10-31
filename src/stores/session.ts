@@ -4,18 +4,19 @@ import { UnsubscribeFunc } from 'pocketbase'
 import { computed } from 'vue'
 
 import { fetchWordsGrid, pb, postWordsGrid } from '@/api'
-import { getSessionId } from '@/utils'
+import { showToast } from '@/composables/toast-manager'
+import { getSeed } from '@/utils'
 
-const GRID_STORE_NAME = 'mts_grid'
+const STORE_NAME = 'mts_state'
 
 let initialSync = false
 let stateSubscription: UnsubscribeFunc | null = null
 
-export const useGridStore = defineStore(GRID_STORE_NAME, () => {
-  const state = useStorage(GRID_STORE_NAME, {
+export const useSessionStore = defineStore(STORE_NAME, () => {
+  const state = useStorage(STORE_NAME, {
     words: [] as string[],
     updated: new Date(0).toISOString(),
-    game_id: null as string | null,
+    game_id: getSeed(),
   })
 
   const words = computed(() => state.value.words)
@@ -23,23 +24,38 @@ export const useGridStore = defineStore(GRID_STORE_NAME, () => {
   async function setWords(words: string[], sync = true): Promise<void> {
     state.value.words = words
     state.value.updated = new Date().toISOString()
-    state.value.game_id = getSessionId()
+    state.value.game_id = getSeed()
     // Sync with backend
     if (sync) await postWordsGrid(words, state.value.game_id)
   }
 
   async function fetchFromBackend(): Promise<void> {
+    if (resetIfSeedChanged()) return
     const data = await fetchWordsGrid()
     if (data) {
       if (
-        data.game_id === getSessionId() &&
+        data.game_id === getSeed() &&
         data.updated > state.value.updated
       ) {
         state.value.words = data.words
         state.value.updated = data.updated
-        state.value.game_id = getSessionId()
+        state.value.game_id = getSeed()
       }
     }
+  }
+
+  /**
+   *
+   * @returns true if the session was reset
+   */
+  function resetIfSeedChanged(): boolean {
+    const gameId = getSeed()
+    if (state.value.game_id !== gameId) {
+      $reset()
+      showToast('Un nouveau mot à deviner a été choisi.', 5000)
+      return true
+    }
+    return false
   }
 
   function $reset(): void {
@@ -60,7 +76,7 @@ export const useGridStore = defineStore(GRID_STORE_NAME, () => {
     // setTimeout(subscribeToState, 0)
   }
 
-  return { setWords, words, $reset, fetchFromBackend, state }
+  return { setWords, words, $reset, state, resetIfSessionChanged: resetIfSeedChanged }
 })
 
 async function subscribeToState(): Promise<UnsubscribeFunc> {
@@ -68,7 +84,7 @@ async function subscribeToState(): Promise<UnsubscribeFunc> {
     .collection('motus_state')
     // FIXME: with correct id once pocketbase is correctly updated
     .subscribe('*', data => {
-      const gridStore = useGridStore()
+      const gridStore = useSessionStore()
       if (data.record.game_id !== gridStore.state.game_id) {
         return
       }

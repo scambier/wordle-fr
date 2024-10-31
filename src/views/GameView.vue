@@ -58,7 +58,7 @@ import {
   watchEffect,
 } from 'vue'
 
-import { needToReloadWords, synchronizeScores } from '@/api'
+import { needToReloadWords } from '@/api'
 import LetterBox from '@/components/common/LetterBox.vue'
 import SiteHeader from '@/components/SiteHeader.vue'
 import VisualKeyboard from '@/components/VisualKeyboard.vue'
@@ -68,10 +68,10 @@ import {
   guesses,
   isGameover,
 } from '@/composables/game-state'
-import { saveScore } from '@/composables/statistics'
 import { showToast } from '@/composables/toast-manager'
 import { ANIM_SPEED, KeyColor } from '@/constants'
-import { useGridStore } from '@/stores/grid'
+import { useHistoryStore } from '@/stores/history'
+import { useSessionStore } from '@/stores/session'
 
 const grid = ref<HTMLDivElement | null>(null)
 watchEffect(() => onSizeChange)
@@ -86,9 +86,10 @@ watch(needToReloadWords, () => {
 const animating = ref(false)
 const isCaretVisible = ref(true)
 
-const gridStore = useGridStore()
+const gridStore = useSessionStore()
+const historyStore = useHistoryStore()
 
-gridStore.$subscribe((mutation, state) => {
+gridStore.$subscribe((_mutation, _state) => {
   loadSavedWordsIntoGuesses()
 })
 
@@ -190,7 +191,7 @@ function inputWord(): void {
   colorizeKeyboard(word)
 
   if (isGameover.value) {
-    saveScore()
+    historyStore.synchronizeWithBackend()
   }
 }
 
@@ -264,7 +265,7 @@ function loadSavedWordsIntoGuesses(): void {
 }
 
 onMounted(async () => {
-  await synchronizeScores()
+  await historyStore.synchronizeWithBackend()
   window.addEventListener('resize', onSizeChange)
   document.addEventListener('keydown', onKeyPress) // Note: 'keypress' doesn't work for backspace
   startBlinkingCaret()

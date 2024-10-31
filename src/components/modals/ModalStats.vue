@@ -60,12 +60,19 @@ import {
   wordToFindAccented,
 } from '@/composables/game-state'
 import { isVisibleModalStats } from '@/composables/modal-manager'
-import { gameStats } from '@/composables/statistics'
+import { useHistoryStore } from '@/stores/history'
 
 import ModalBase from './ModalBase.vue'
+
+const gameStats = useHistoryStore().state
+
 const games = Object.keys(gameStats.games)
   .sort()
-  .map(k => ({ date: k, score: gameStats.games[k].score, won: gameStats.games[k].won }))
+  .map(k => ({
+    date: k,
+    score: gameStats.games[k].score,
+    won: gameStats.games[k].won,
+  }))
 
 const statsTexts = ref([
   {

@@ -40,36 +40,22 @@ import ModalWelcome from '@/components/modals/ModalWelcome.vue'
 import ToastMessage from '@/components/ToastMessage.vue'
 
 import ModalStats from './components/modals/ModalStats.vue'
-import { initSessionForToday } from './composables/game-state'
 import {
   isVisibleModalStats,
   isVisibleModalWelcome,
 } from './composables/modal-manager'
 import { BXL_TZ } from './constants'
-import { hasSessionIdChanged } from './storage'
-import { useGridStore } from './stores/grid'
+import { useSessionStore } from './stores/session'
+
+const sessionStore = useSessionStore()
 
 onMounted(() => {
-  initSessionForToday()
-  window.addEventListener('focus', checkAndReset)
+  window.addEventListener('focus', sessionStore.resetIfSessionChanged)
 })
 
 onUnmounted(() => {
-  window.removeEventListener('focus', checkAndReset)
+  window.removeEventListener('focus', sessionStore.resetIfSessionChanged)
 })
-
-/**
- * This will reset the game and empty the board,
- * if a new puzzle has started
- */
-async function checkAndReset(): Promise<void> {
-  // await useGridStore().fetchFromBackend()
-  if (hasSessionIdChanged()) {
-    initSessionForToday()
-    // TODO: don't reload, do something cleaner?
-    location.reload()
-  }
-}
 
 function isInMaintenance(): boolean {
   const end = utcToZonedTime(new Date(2022, 0, 29, 12, 0, 0), BXL_TZ)

@@ -9,8 +9,7 @@ import { computed, reactive, watch } from 'vue'
 
 import { KeyColor } from '@/constants'
 import acceptedGuesses from '@/guesses-list'
-import * as storage from '@/storage'
-import { useGridStore } from '@/stores/grid'
+import { useSessionStore } from '@/stores/session'
 import { WordInput } from '@/types'
 import {
   getCurrentDate,
@@ -19,9 +18,6 @@ import {
   shuffle,
 } from '@/utils'
 import words from '@/words-list'
-
-import { isVisibleModalStats } from './modal-manager'
-import { showToast } from './toast-manager'
 
 export const shuffled: Readonly<string[]> = shuffle(words)
 export const wordToFindAccented = getWordForToday()
@@ -42,7 +38,7 @@ watch(
       // Register a "start_game" event once the first word is input
       umami.track('start_game')
     }
-    await useGridStore().setWords(words)
+    await useSessionStore().setWords(words)
   },
 )
 
@@ -59,15 +55,6 @@ export const isGameover = computed(
 export const countTotalGuesses = computed<number>(() => {
   return guesses.filter(o => !!o.word && o.confirmed).length
 })
-
-export function initSessionForToday(): void {
-  // Clean the stored state if a new word is available
-  const newSession = storage.cleanState()
-
-  if (newSession) {
-    showToast('Un nouveau mot à deviner a été choisi.', 5000)
-  }
-}
 
 export function getWordForToday(): string {
   if (import.meta.env.DEV) {

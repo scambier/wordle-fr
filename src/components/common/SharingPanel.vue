@@ -19,9 +19,9 @@ import {
   isWinner,
   wordToFind,
 } from '@/composables/game-state'
-import { gameStats } from '@/composables/statistics'
 import { showToast } from '@/composables/toast-manager'
 import { KeyColor, OLD_COUNT } from '@/constants'
+import { useHistoryStore } from '@/stores/history'
 import { numberOfGamesSinceStart } from '@/utils'
 import IconShare from '~icons/ph/share-network'
 
@@ -52,7 +52,7 @@ function getSharingText(): string {
   }
   const tries = `✔️ ${countTotalGuesses.value}/6`
   return `Mo-mo-motus n°${numberOfGamesSinceStart() + OLD_COUNT}\nSérie: ${
-    gameStats.currentStreak
+    useHistoryStore().state.currentStreak
   }\n${emojis.filter(o => !!o).join('\n')}${
     isWinner.value ? tries : '❌'
   }\nhttps://scambier.xyz/momomotus/`

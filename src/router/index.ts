@@ -11,11 +11,6 @@ const router = createRouter({
       component: GameView,
     },
     {
-      path: '/history',
-      name: 'history',
-      component: () => import('../views/HistoryView.vue'),
-    },
-    {
       path: '/auth',
       name: 'auth',
       component: () => import('../views/AuthView.vue'),

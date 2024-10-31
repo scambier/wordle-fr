@@ -1,9 +1,7 @@
 import PocketBase, { RecordService } from 'pocketbase'
 import { ref } from 'vue'
 
-import { loadStats } from './composables/statistics'
-import { K_LASTSYNC } from './constants'
-import { getItem } from './storage'
+import { useHistoryStore } from './stores/history'
 
 type SyncedGame = {
   won: boolean
@@ -34,102 +32,53 @@ export function isLoggedIn(): boolean {
   return !!pb.authStore.record
 }
 
-/**
- * Sends all the games to the backend in a single query
- */
-export async function synchronizeScores(): Promise<void> {
-  try {
-    if (!isLoggedIn()) return
-    const stats = loadStats()
-    const lastSync = getItem(K_LASTSYNC, new Date(0).toISOString())
-    console.log('Syncing scores since', lastSync)
+// #region Games History
 
-    const games = Object.entries(stats.games)
-      .filter(([date]) => date.slice(0, 10) >= lastSync.slice(0, 10))
-      .map(([date, { score, won }]) => ({
-        date,
-        score,
-        won,
-        user: pb.authStore.record?.id ?? '',
-      }))
-    if (games.length) {
-      await pb.send('/motus/games/batch', {
-        method: 'POST',
-        body: JSON.stringify({ games }),
-      })
-    }
-    localStorage.setItem(K_LASTSYNC, new Date().toISOString())
+export async function getGamesHistory(since: Date): Promise<SyncedGame[]> {
+  if (!isLoggedIn()) {
+    return []
   }
-  catch (e) {
-    console.error('Error syncing scores:', e)
+  return pb.collection('motus_games').getFullList({
+    filter: pb.filter('date >= {:date}', {
+      date: since.toISOString().slice(0, 10),
+    }),
+  })
+}
+
+export async function postGamesHistory(since: Date): Promise<void> {
+  if (!isLoggedIn()) {
+    return
+  }
+  const minDate = since.toISOString().slice(0, 10)
+
+  const games = Object.entries(useHistoryStore().state.games)
+    .filter(([date]) => date.slice(0, 10) >= minDate)
+    .map(([date, { score, won }]) => ({
+      date,
+      score,
+      won,
+      user: pb.authStore.record?.id ?? '',
+    }))
+  if (games.length) {
+    await pb.send('/motus/games/batch', {
+      method: 'POST',
+      body: JSON.stringify({ games }),
+    })
   }
 }
 
-// /**
-//  * Synchronizes the score history with the backend
-//  * @returns
-//  */
-// export async function synchronizeScores(): Promise<void> {
-//   try {
-//     if (!isLoggedIn()) {
-//       return
-//     }
-//     console.log('Syncing scores')
+export async function postGame(game: {
+  date: string
+  score: number
+  won: boolean
+}): Promise<void> {
+  if (!isLoggedIn()) {
+    return
+  }
+  await pb.collection('motus_games').create(game)
+}
 
-//     // Send to backend
-
-//     let lastSync: Date
-//     try {
-//       lastSync = new Date(
-//         localStorage.getItem(K_LASTSYNC) ?? '1970-01-01T00:00:00.000Z',
-//       )
-//     }
-//     catch (e) {
-//       lastSync = new Date('1970-01-01T00:00:00.000Z')
-//     }
-
-//     const stats = loadStats()
-//     for (const key of Object.keys(stats.games)) {
-//       // Make sure the key is in the form of 'YYYY-MM-DD-0' or 'YYYY-MM-DD-1'
-//       if (!/^\d{4}-\d{2}-\d{2}-[01]$/.test(key)) {
-//         continue
-//       }
-//       if (key.slice(0, 10) >= lastSync.toISOString().slice(0, 10)) {
-//         const game = stats.games[key]
-//         try {
-//           await pb.collection('motus_games').create({
-//             date: key,
-//             score: game.score,
-//             won: game.won,
-//             user: pb.authStore.record?.id,
-//           })
-//         }
-//         catch (e) {
-//           // console.warn('Could not synchronize game', e)
-//         }
-//       }
-//     }
-
-//     // Get from backend
-
-//     const dateOnly = lastSync.toISOString().slice(0, 10)
-//     const fromServer = await pb.collection('motus_games').getFullList({
-//       filter: pb.filter('date >= {:date} || created >= {:date}', {
-//         date: dateOnly,
-//       }),
-//     })
-
-//     // Save to local storage
-//     for (const game of fromServer) {
-//       gameStats.games[game.date] = { score: game.score, won: game.won }
-//     }
-
-//     localStorage.setItem('mts_lastsync', new Date().toISOString())
-//   }
-//   catch (e) {
-//     console.error('Error syncing scores:', e)
-//   }
-// }
+// #endregion
 
 // #region Words grid
 

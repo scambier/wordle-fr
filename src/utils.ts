@@ -14,7 +14,7 @@ export function getCurrentDate(): Date {
   return utcToZonedTime(new Date(), BXL_TZ)
 }
 
-export function getSessionId(): string {
+export function getSeed(): string {
   const now = getCurrentDate()
   // https://stackoverflow.com/a/28149561
   const tzoffset = now.getTimezoneOffset() * 60000

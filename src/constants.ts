@@ -1,10 +1,7 @@
 export const ANIM_SPEED = 200
 export const BXL_TZ = 'Europe/Brussels'
 
-export const K_SESSION = 'mts_session'
 export const K_WELCOME = 'mts_lastWelcome'
-export const K_LEXICON = 'mts_lexiconHash'
-export const K_STATS = 'mts_stats'
 export const K_LASTSYNC = 'mts_lastSync'
 
 // export const GAME_STARTING_DATE = '2022-01-12'
