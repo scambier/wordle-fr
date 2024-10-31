@@ -31,16 +31,18 @@ export const useSessionStore = defineStore(STORE_NAME, () => {
 
   async function fetchFromBackend(): Promise<void> {
     if (resetIfSeedChanged()) return
-    const data = await fetchWordsGrid()
-    if (data) {
-      if (
-        data.game_id === getSeed() &&
-        data.updated > state.value.updated
-      ) {
-        state.value.words = data.words
-        state.value.updated = data.updated
-        state.value.game_id = getSeed()
+    try {
+      const data = await fetchWordsGrid()
+      if (data) {
+        if (data.game_id === getSeed() && data.updated > state.value.updated) {
+          state.value.words = data.words
+          state.value.updated = data.updated
+          state.value.game_id = getSeed()
+        }
       }
+    }
+    catch (e) {
+      console.warn('Failed to fetch words grid from backend')
     }
   }
 
@@ -68,15 +70,25 @@ export const useSessionStore = defineStore(STORE_NAME, () => {
   }
 
   if (!stateSubscription) {
-    subscribeToState().then(sub => {
-      stateSubscription = sub
-      console.log('Subscribed for SSEs.')
-    })
+    subscribeToState()
+      .then(sub => {
+        stateSubscription = sub
+        console.log('Subscribed for SSEs.')
+      })
+      .catch(() => {
+        console.warn('Failed to subscribe to SSEs')
+      })
 
     // setTimeout(subscribeToState, 0)
   }
 
-  return { setWords, words, $reset, state, resetIfSessionChanged: resetIfSeedChanged }
+  return {
+    setWords,
+    words,
+    $reset,
+    state,
+    resetIfSessionChanged: resetIfSeedChanged,
+  }
 })
 
 async function subscribeToState(): Promise<UnsubscribeFunc> {

@@ -4,9 +4,9 @@ import { watch } from 'vue'
 
 import { getGamesHistory, postGame, postGamesHistory } from '@/api'
 import { countTotalGuesses, isWinner } from '@/composables/game-state'
+import { K_LASTSYNC } from '@/constants'
 import { getItem, setItem } from '@/storage'
 import { getSeed } from '@/utils'
-import { K_LASTSYNC } from '@/constants'
 
 const STORE_NAME = 'mts_stats'
 
@@ -39,19 +39,33 @@ export const useHistoryStore = defineStore(STORE_NAME, () => {
     const lastSyncDate = new Date(
       getItem(K_LASTSYNC, new Date(0).toISOString()),
     )
-    console.log('syncing with backend', lastSyncDate)
+    let updated = true
 
     // Post
-    await postGamesHistory(lastSyncDate)
+    try {
+      await postGamesHistory(lastSyncDate)
+    }
+    catch (e) {
+      console.warn('Failed to post games history')
+      updated = false
+    }
 
     // Fetch
-    const fromBackend = await getGamesHistory(lastSyncDate)
-    for (const game of fromBackend) {
-      state.value.games[game.date] = { score: game.score, won: game.won }
+    try {
+      const fromBackend = await getGamesHistory(lastSyncDate)
+      for (const game of fromBackend) {
+        state.value.games[game.date] = { score: game.score, won: game.won }
+      }
+    }
+    catch (e) {
+      console.warn('Failed to fetch games history')
+      updated = false
     }
 
     // Update last sync date
-    setItem(K_LASTSYNC, new Date().toISOString())
+    if (updated) {
+      setItem(K_LASTSYNC, new Date().toISOString())
+    }
   }
 
   function setScore(seed: string, won: boolean, score: number): void {
