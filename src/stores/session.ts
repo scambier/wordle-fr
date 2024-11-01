@@ -74,7 +74,11 @@ export const useSessionStore = defineStore(STORE_NAME, () => {
   }
 
   function $reset(): void {
-    state.value = null
+    state.value = {
+      words: [],
+      updated: new Date(0).toISOString(),
+      game_id: getSeed(),
+    }
   }
 
   if (!initialSync) {

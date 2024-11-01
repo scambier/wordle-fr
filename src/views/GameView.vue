@@ -265,7 +265,9 @@ function loadSavedWordsIntoGuesses(): void {
 }
 
 onMounted(async () => {
-  await historyStore.synchronizeWithBackend()
+  // Don't await this. If the backend is down, it will block the UI for several seconds
+  historyStore.synchronizeWithBackend()
+  
   window.addEventListener('resize', onSizeChange)
   document.addEventListener('keydown', onKeyPress) // Note: 'keypress' doesn't work for backspace
   startBlinkingCaret()
