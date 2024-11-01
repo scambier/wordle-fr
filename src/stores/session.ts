@@ -21,6 +21,19 @@ export const useSessionStore = defineStore(STORE_NAME, () => {
 
   const words = computed(() => state.value.words)
 
+  async function subscribeToState(): Promise<UnsubscribeFunc> {
+    return await pb
+      .collection('motus_state')
+      // FIXME: with correct id once pocketbase is correctly updated
+      .subscribe('*', data => {
+        const sessionStore = useSessionStore()
+        if (data.record.game_id !== sessionStore.state.game_id) {
+          return
+        }
+        sessionStore.setWords(data.record.words, false)
+      })
+  }
+
   async function setWords(words: string[], sync = true): Promise<void> {
     state.value.words = words
     state.value.updated = new Date().toISOString()
@@ -78,8 +91,6 @@ export const useSessionStore = defineStore(STORE_NAME, () => {
       .catch(() => {
         console.warn('Failed to subscribe to SSEs')
       })
-
-    // setTimeout(subscribeToState, 0)
   }
 
   return {
@@ -87,19 +98,7 @@ export const useSessionStore = defineStore(STORE_NAME, () => {
     words,
     $reset,
     state,
-    resetIfSessionChanged: resetIfSeedChanged,
+    resetIfSeedChanged,
+    fetchFromBackend,
   }
 })
-
-async function subscribeToState(): Promise<UnsubscribeFunc> {
-  return await pb
-    .collection('motus_state')
-    // FIXME: with correct id once pocketbase is correctly updated
-    .subscribe('*', data => {
-      const gridStore = useSessionStore()
-      if (data.record.game_id !== gridStore.state.game_id) {
-        return
-      }
-      gridStore.setWords(data.record.words, false)
-    })
-}

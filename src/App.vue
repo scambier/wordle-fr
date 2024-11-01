@@ -50,11 +50,12 @@ import { useSessionStore } from './stores/session'
 const sessionStore = useSessionStore()
 
 onMounted(() => {
-  window.addEventListener('focus', sessionStore.resetIfSessionChanged)
+  sessionStore.resetIfSeedChanged()
+  window.addEventListener('focus', sessionStore.fetchFromBackend)
 })
 
 onUnmounted(() => {
-  window.removeEventListener('focus', sessionStore.resetIfSessionChanged)
+  window.removeEventListener('focus', sessionStore.fetchFromBackend)
 })
 
 function isInMaintenance(): boolean {
