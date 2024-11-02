@@ -3,6 +3,7 @@ export const BXL_TZ = 'Europe/Brussels'
 
 export const K_WELCOME = 'mts_lastWelcome'
 export const K_LASTSYNC = 'mts_lastSync'
+export const K_AUTH_ACTIVE = 'mts_authActive'
 
 // export const GAME_STARTING_DATE = '2022-01-12'
 export const GAME_STARTING_DATE = '2024-05-04'

@@ -39,12 +39,23 @@
       Le mot à trouver était
       <b><a
         :href="`https://fr.wiktionary.org/wiki/${wordToFindAccented}`"
-        class="border-b border-green-dimmed"
+        class="border-green-dimmed border-b"
         target="_blank">{{ wordToFind.toUpperCase() }}</a></b>.<br>
       Le prochain mot arrive dans <span v-html="getTimeBeforeNextWord()" />
     </div>
 
     <SharingPanel v-if="isGameover" />
+
+    <div
+      v-if="getItem(K_AUTH_ACTIVE) === '1'"
+      class="text-xs">
+      <div v-if="isLoggedIn()">
+        Connecté en tant que {{ pb.authStore.record?.email }}
+      </div>
+      <div v-else>
+        Déconnecté - La sauvegarde des scores est désactivée
+      </div>
+    </div>
   </ModalBase>
 </template>
 
@@ -52,6 +63,7 @@
 import { groupBy } from 'lodash-es'
 import { ref } from 'vue'
 
+import { isLoggedIn, pb } from '@/api'
 import SharingPanel from '@/components/common/SharingPanel.vue'
 import {
   getTimeBeforeNextWord,
@@ -60,6 +72,8 @@ import {
   wordToFindAccented,
 } from '@/composables/game-state'
 import { isVisibleModalStats } from '@/composables/modal-manager'
+import { K_AUTH_ACTIVE } from '@/constants'
+import { getItem } from '@/storage'
 import { useHistoryStore } from '@/stores/history'
 
 import ModalBase from './ModalBase.vue'
@@ -94,13 +108,6 @@ const statsTexts = ref([
     value: gameStats.bestStreak,
   },
 ])
-
-// function getRandomEmoji(): string {
-//   if (isGameover.value && isWinner.value) {
-//     return randomItem(['🎉', '✨', '✔', '🙌'])
-//   }
-//   return ''
-// }
 
 function mostCommonScore(): number {
   const grouped = groupBy(games, 'score')

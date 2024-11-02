@@ -49,9 +49,10 @@ import { useSessionStore } from './stores/session'
 
 const sessionStore = useSessionStore()
 
-onMounted(() => {
-  sessionStore.resetIfSeedChanged()
+onMounted(async () => {
   window.addEventListener('focus', sessionStore.fetchFromBackend)
+  // Call those methods in the end of onMounted to avoid blocking the UI
+  await sessionStore.fetchFromBackend()
 })
 
 onUnmounted(() => {
