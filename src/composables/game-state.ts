@@ -34,7 +34,7 @@ export const guesses = reactive<WordInput[]>([
 watch(
   () => guesses.filter(o => o.confirmed).map(o => o.word),
   async words => {
-    if (words.filter(w => !!w).length === 1) {
+    if (words.filter(w => !!w).length === 1 && !isGameover.value) {
       // Register a "start_game" event once the first word is input
       umami.track('start_game')
     }
