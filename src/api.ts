@@ -6,7 +6,7 @@ import { useHistoryStore } from './stores/history'
 type SyncedGame = {
   won: boolean
   score: number
-  date: string
+  gameId: string
   user: string
 }
 
@@ -14,7 +14,7 @@ type SyncedState = {
   id: string
   user: string
   words: string[]
-  game_id: string
+  gameId: string
   updated: string
 }
 
@@ -48,8 +48,8 @@ export async function getGamesHistory(since: Date): Promise<SyncedGame[]> {
   }
   console.log('Fetching games history since', since)
   return pb.collection('motus_games').getFullList({
-    filter: pb.filter('date >= {:date}', {
-      date: since.toISOString().slice(0, 10),
+    filter: pb.filter('gameId >= {:gameId}', {
+      gameId: since.toISOString().slice(0, 10),
     }),
   })
 }
@@ -64,8 +64,8 @@ export async function postGamesHistory(since: Date): Promise<boolean> {
 
   const games = Object.entries(useHistoryStore().state.games)
     .filter(([gameId]) => gameId.slice(0, 10) >= minDate)
-    .map(([date, { score, won }]) => ({
-      date,
+    .map(([gameId, { score, won }]) => ({
+      gameId,
       score,
       won,
       user: pb.authStore.record?.id ?? '',
@@ -80,7 +80,7 @@ export async function postGamesHistory(since: Date): Promise<boolean> {
 }
 
 export async function postGame(game: {
-  date: string
+  gameId: string
   score: number
   won: boolean
 }): Promise<void> {
@@ -125,13 +125,13 @@ export async function postWordsGrid(
     existingId = existing[0].id
     await pb
       .collection('motus_state')
-      .update(existingId, { words, game_id: gameId })
+      .update(existingId, { words, gameId })
   }
   else {
     existingId = (
       await pb
         .collection('motus_state')
-        .create({ user: pb.authStore.record?.id, words, game_id: gameId })
+        .create({ user: pb.authStore.record?.id, words, gameId })
     ).id
   }
 }

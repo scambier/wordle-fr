@@ -61,7 +61,7 @@ export const useHistoryStore = defineStore(STORE_NAME, () => {
     try {
       const fromBackend = await getGamesHistory(lastSyncDate)
       for (const game of fromBackend) {
-        state.value.games[game.date] = { score: game.score, won: game.won }
+        state.value.games[game.gameId] = { score: game.score, won: game.won }
       }
     }
     catch (e) {
@@ -83,8 +83,9 @@ export const useHistoryStore = defineStore(STORE_NAME, () => {
     const stats = state.value
     // Don't overwrite an existing score
     if (!stats.games[seed]) {
+      console.log('Setting score for', seed, won, score)
       stats.games[seed] = { score, won }
-      postGame({ date: seed, score, won })
+      postGame({ gameId: seed, score, won })
       umami.track(won ? 'win_game' : 'lose_game')
       umami.track('end_game')
     }

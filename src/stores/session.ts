@@ -16,7 +16,7 @@ export const useSessionStore = defineStore(STORE_NAME, () => {
   const state = useStorage(STORE_NAME, {
     words: [] as string[],
     updated: new Date(0).toISOString(),
-    game_id: getSeed(),
+    gameId: getSeed(),
   })
 
   const words = computed(() => state.value.words)
@@ -27,7 +27,7 @@ export const useSessionStore = defineStore(STORE_NAME, () => {
       // FIXME: with correct id once pocketbase is correctly updated
       .subscribe('*', data => {
         const sessionStore = useSessionStore()
-        if (data.record.game_id !== sessionStore.state.game_id) {
+        if (data.record.gameId !== sessionStore.state.gameId) {
           return
         }
         sessionStore.setWords(data.record.words, false)
@@ -37,9 +37,9 @@ export const useSessionStore = defineStore(STORE_NAME, () => {
   async function setWords(words: string[], sync = true): Promise<void> {
     state.value.words = words
     state.value.updated = new Date().toISOString()
-    state.value.game_id = getSeed()
+    state.value.gameId = getSeed()
     // Sync with backend
-    if (sync) await postWordsGrid(words, state.value.game_id)
+    if (sync) await postWordsGrid(words, state.value.gameId)
   }
 
   async function fetchFromBackend(): Promise<void> {
@@ -47,10 +47,10 @@ export const useSessionStore = defineStore(STORE_NAME, () => {
     try {
       const data = await fetchWordsGrid()
       if (data) {
-        if (data.game_id === getSeed() && data.updated > state.value.updated) {
+        if (data.gameId === getSeed() && data.updated > state.value.updated) {
           state.value.words = data.words
           state.value.updated = data.updated
-          state.value.game_id = getSeed()
+          state.value.gameId = getSeed()
         }
       }
     }
@@ -65,7 +65,7 @@ export const useSessionStore = defineStore(STORE_NAME, () => {
    */
   function resetIfSeedChanged(): boolean {
     const gameId = getSeed()
-    if (state.value.game_id !== gameId) {
+    if (state.value.gameId !== gameId) {
       $reset()
       showToast('Un nouveau mot à deviner a été choisi.', 5000)
       return true
@@ -77,7 +77,7 @@ export const useSessionStore = defineStore(STORE_NAME, () => {
     state.value = {
       words: [],
       updated: new Date(0).toISOString(),
-      game_id: getSeed(),
+      gameId: getSeed(),
     }
   }
 

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 
-import { logout, pb } from '@/api'
+import { isLoggedIn, logout, pb } from '@/api'
 import ButtonGreen from '@/components/common/ButtonGreen.vue'
 import { K_AUTH_ACTIVE } from '@/constants'
 import router from '@/router'
@@ -44,8 +44,8 @@ async function validateCode(): Promise<void> {
 <template>
   <div class="mx-auto max-w-lg items-center p-4">
     <!-- Logged in-->
-    <div v-if="pb.authStore.record">
-      <div>Vous êtes connecté en tant que {{ pb.authStore.record.email }}</div>
+    <div v-if="isLoggedIn()">
+      <div>Vous êtes connecté en tant que {{ pb.authStore.record?.email }}</div>
       <div>
         <button
           @click.prevent="logout"
