@@ -3,10 +3,10 @@ import { ref } from 'vue'
 
 import { logout, pb } from '@/api'
 import ButtonGreen from '@/components/common/ButtonGreen.vue'
-import router from '@/router'
-import { useHistoryStore } from '@/stores/history'
-import { setItem } from '@/storage'
 import { K_AUTH_ACTIVE } from '@/constants'
+import router from '@/router'
+import { setItem } from '@/storage'
+import { useHistoryStore } from '@/stores/history'
 
 const email = ref('')
 const otpId = ref<string | null>(null)
@@ -105,22 +105,23 @@ async function validateCode(): Promise<void> {
 
     <div class="mt-4 text-xs">
       <p>
-        Afin de synchroniser vos scores entre vos appareils, vous pouvez vous
-        connecter avec votre adresse email.
+        👉 Afin de synchroniser vos scores entre vos appareils, vous pouvez vous
+        connecter avec votre adresse e-mail.
       </p>
       <p>
-        Vous recevrez un code unique par email afin de vous authentifier, et
-        devrez répéter cette opération à chaque nouvel appareil.
+        👉 Vous recevrez un code unique par e-mail afin de vous authentifier, et
+        devrez répéter cette opération pour chaque appareil.
       </p>
       <p class="mt-2 font-bold">
-        Cette fonctionnalité est expérimentale et peut être supprimée à tout
+        Cette fonctionnalité est expérimentale et peut être modifiée à tout
         moment.
       </p>
       <p class="mt-2">
-        Politique de confidentialité : aucune donnée personnelle n'est stockée.
-        Votre adresse email ne sera utilisée que pour vous authentifier, et ne
-        sera jamais partagée avec des tiers.<br>
-        Nous stockons uniquement votre historique de parties.
+        Politique de confidentialité :<br>
+        Nous stockons uniquement votre historique de parties. Aucune donnée
+        personnelle autre que votre adresse e-mail n'est enregistrée. Votre
+        adresse e-mail ne sera utilisée que pour vous authentifier, et ne sera
+        jamais partagée avec des tiers.
       </p>
     </div>
   </div>
