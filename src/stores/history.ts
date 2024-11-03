@@ -3,10 +3,8 @@ import { defineStore } from 'pinia'
 import { watch } from 'vue'
 
 import { getGamesHistory, postGame, postGamesHistory } from '@/api'
-import { countTotalGuesses, isWinner } from '@/composables/game-state'
 import { K_LASTSYNC } from '@/constants'
 import { getItem, setItem } from '@/storage'
-import { getSeed } from '@/utils'
 
 const STORE_NAME = 'mts_stats'
 
@@ -35,7 +33,13 @@ export const useHistoryStore = defineStore(STORE_NAME, () => {
     }
   })
 
+  async function forceSync(): Promise<void> {
+    setItem(K_LASTSYNC, new Date(0).toISOString())
+    await synchronizeWithBackend()
+  }
+
   async function synchronizeWithBackend(): Promise<void> {
+    console.log('Synchronizing with backend')
     const lastSyncDate = new Date(
       getItem(K_LASTSYNC, new Date(0).toISOString()),
     )
@@ -43,7 +47,10 @@ export const useHistoryStore = defineStore(STORE_NAME, () => {
 
     // Post
     try {
-      await postGamesHistory(lastSyncDate)
+      const posted = await postGamesHistory(lastSyncDate)
+      if (!posted) {
+        updated = false
+      }
     }
     catch (e) {
       console.warn('Failed to post games history')
@@ -64,7 +71,11 @@ export const useHistoryStore = defineStore(STORE_NAME, () => {
 
     // Update last sync date
     if (updated) {
+      console.log('Synchronized with backend')
       setItem(K_LASTSYNC, new Date().toISOString())
+    }
+    else {
+      console.warn('Failed to synchronize with backend')
     }
   }
 
@@ -79,13 +90,10 @@ export const useHistoryStore = defineStore(STORE_NAME, () => {
     }
   }
 
-  //   ;(async () => {
-  //     await synchronizeWithBackend()
-  //   })()
-
   return {
     state,
     setScore,
     synchronizeWithBackend,
+    forceSync,
   }
 })

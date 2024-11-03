@@ -50,10 +50,29 @@
       v-if="getItem(K_AUTH_ACTIVE) === '1'"
       class="text-xs">
       <div v-if="isLoggedIn()">
-        Connecté en tant que {{ pb.authStore.record?.email }}
+        <div class="mb-2">
+          <button
+            class="border p-1"
+            @click.prevent="historyStore.forceSync">
+            Forcer la synchronisation
+          </button>
+        </div>
+        Connecté en tant que {{ pb.authStore.record?.email }}.
+        <button
+          @click.prevent="logout"
+          class="underline">
+          Déconnexion
+        </button>
       </div>
-      <div v-else>
-        Déconnecté - La sauvegarde des scores est désactivée
+      <div
+        class="text-red-600"
+        v-else>
+        Déconnecté - La sauvegarde des scores est désactivée<br>
+        <button
+          @click.prevent="() => router.push('/auth')"
+          class="mt-2 border p-2">
+          Connexion
+        </button>
       </div>
     </div>
   </ModalBase>
@@ -63,7 +82,7 @@
 import { groupBy } from 'lodash-es'
 import { ref } from 'vue'
 
-import { isLoggedIn, pb } from '@/api'
+import { isLoggedIn, logout, pb } from '@/api'
 import SharingPanel from '@/components/common/SharingPanel.vue'
 import {
   getTimeBeforeNextWord,
@@ -73,12 +92,14 @@ import {
 } from '@/composables/game-state'
 import { isVisibleModalStats } from '@/composables/modal-manager'
 import { K_AUTH_ACTIVE } from '@/constants'
+import router from '@/router'
 import { getItem } from '@/storage'
 import { useHistoryStore } from '@/stores/history'
 
 import ModalBase from './ModalBase.vue'
 
-const gameStats = useHistoryStore().state
+const historyStore = useHistoryStore()
+const gameStats = historyStore.state
 
 const games = Object.keys(gameStats.games)
   .sort()

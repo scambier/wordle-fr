@@ -32,12 +32,21 @@ export function isLoggedIn(): boolean {
   return !!pb.authStore.isValid
 }
 
+export function logout(): void {
+  const confirmed = confirm('Vous déconnecter ? Vos scores ne seront plus synchrnoisés.')
+  if (confirmed) {
+    pb.authStore.clear()
+    window.location.reload()
+  }
+}
+
 // #region Games History
 
 export async function getGamesHistory(since: Date): Promise<SyncedGame[]> {
   if (!isLoggedIn()) {
     return []
   }
+  console.log('Fetching games history since', since)
   return pb.collection('motus_games').getFullList({
     filter: pb.filter('date >= {:date}', {
       date: since.toISOString().slice(0, 10),
@@ -45,14 +54,16 @@ export async function getGamesHistory(since: Date): Promise<SyncedGame[]> {
   })
 }
 
-export async function postGamesHistory(since: Date): Promise<void> {
+export async function postGamesHistory(since: Date): Promise<boolean> {
   if (!isLoggedIn()) {
-    return
+    return false
   }
+  console.log('Posting games history since', since)
+
   const minDate = since.toISOString().slice(0, 10)
 
   const games = Object.entries(useHistoryStore().state.games)
-    .filter(([date]) => date.slice(0, 10) >= minDate)
+    .filter(([gameId]) => gameId.slice(0, 10) >= minDate)
     .map(([date, { score, won }]) => ({
       date,
       score,
@@ -65,6 +76,7 @@ export async function postGamesHistory(since: Date): Promise<void> {
       body: JSON.stringify({ games }),
     })
   }
+  return true
 }
 
 export async function postGame(game: {

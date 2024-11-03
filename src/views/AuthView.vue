@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 
-import { pb } from '@/api'
+import { logout, pb } from '@/api'
 import ButtonGreen from '@/components/common/ButtonGreen.vue'
 import router from '@/router'
 import { useHistoryStore } from '@/stores/history'
@@ -38,11 +38,6 @@ async function validateCode(): Promise<void> {
   catch (error) {
     console.error(error)
   }
-}
-
-function logout(): void {
-  pb.authStore.clear()
-  window.location.reload()
 }
 </script>
 

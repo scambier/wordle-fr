@@ -63,15 +63,18 @@ import LetterBox from '@/components/common/LetterBox.vue'
 import SiteHeader from '@/components/SiteHeader.vue'
 import VisualKeyboard from '@/components/VisualKeyboard.vue'
 import {
+  countTotalGuesses,
   doesWordExist,
   getLettersColors,
   guesses,
   isGameover,
+  isWinner,
 } from '@/composables/game-state'
 import { showToast } from '@/composables/toast-manager'
 import { ANIM_SPEED, KeyColor } from '@/constants'
 import { useHistoryStore } from '@/stores/history'
 import { useSessionStore } from '@/stores/session'
+import { getSeed } from '@/utils'
 
 const grid = ref<HTMLDivElement | null>(null)
 watchEffect(() => onSizeChange)
@@ -191,6 +194,12 @@ function inputWord(): void {
   colorizeKeyboard(word)
 
   if (isGameover.value) {
+    historyStore.synchronizeWithBackend()
+    useHistoryStore().setScore(
+      getSeed(),
+      isWinner.value,
+      countTotalGuesses.value,
+    )
     historyStore.synchronizeWithBackend()
   }
 }
