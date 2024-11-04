@@ -50,19 +50,19 @@
       v-if="getItem(K_AUTH_ACTIVE) === '1'"
       class="text-xs">
       <div v-if="isLoggedIn()">
-        <div class="mb-2">
-          <button
-            class="border p-1"
-            @click.prevent="historyStore.forceSync">
-            Forcer la synchronisation
-          </button>
-        </div>
         Connecté en tant que {{ pb.authStore.record?.email }}.
         <button
           @click.prevent="logout"
           class="underline">
           Déconnexion
         </button>
+        <div class="mt-2">
+          <button
+            class="rounded border p-1"
+            @click.prevent="historyStore.forceSync">
+            Forcer la synchronisation
+          </button>
+        </div>
       </div>
       <div
         class="text-red-600"
