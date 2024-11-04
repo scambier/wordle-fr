@@ -1,6 +1,6 @@
 <template>
   <div
-    class="absolute left-0 top-0 flex size-full max-h-max justify-center overflow-y-scroll bg-black/40">
+    class="absolute left-0 top-0 flex size-full justify-center overflow-y-scroll bg-black/40">
     <!-- Content -->
     <div
       class="relative m-4 mt-16 h-fit w-[32rem] max-w-full rounded-lg border-2 border-slate-600 bg-slate-900 p-4 pt-8 text-center text-lg">
