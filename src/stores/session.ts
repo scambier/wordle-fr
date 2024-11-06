@@ -4,10 +4,11 @@ import { UnsubscribeFunc } from 'pocketbase'
 import { computed } from 'vue'
 
 import { fetchWordsGrid, pb, postWordsGrid } from '@/api'
+import { guesses } from '@/composables/game-state'
 import { showToast } from '@/composables/toast-manager'
 import { getSeed } from '@/utils'
 
-const STORE_NAME = 'mts_state'
+const STORE_NAME = 'mts_grid'
 
 let initialSync = false
 let stateSubscription: UnsubscribeFunc | null = null
@@ -66,6 +67,10 @@ export const useSessionStore = defineStore(STORE_NAME, () => {
   function resetIfSeedChanged(): boolean {
     const gameId = getSeed()
     if (state.value.gameId !== gameId) {
+      guesses.forEach(o => {
+        o.word = ''
+        o.confirmed = false
+      })
       $reset()
       showToast('Un nouveau mot à deviner a été choisi.', 5000)
       return true

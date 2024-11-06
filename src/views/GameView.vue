@@ -194,13 +194,11 @@ function inputWord(): void {
   colorizeKeyboard(word)
 
   if (isGameover.value) {
-    historyStore.synchronizeWithBackend()
     useHistoryStore().setScore(
       getSeed(),
       isWinner.value,
       countTotalGuesses.value,
     )
-    historyStore.synchronizeWithBackend()
   }
 }
 
@@ -275,7 +273,9 @@ function loadSavedWordsIntoGuesses(): void {
 
 onMounted(async () => {
   // Don't await this. If the backend is down, it will block the UI for several seconds
-  historyStore.synchronizeWithBackend()
+  historyStore.synchronizeWithBackend().catch(e => {
+    console.error('Error synchronizing history with backend:', e)
+  })
 
   window.addEventListener('resize', onSizeChange)
   document.addEventListener('keydown', onKeyPress) // Note: 'keypress' doesn't work for backspace

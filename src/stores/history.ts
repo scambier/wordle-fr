@@ -2,7 +2,7 @@ import { useStorage } from '@vueuse/core'
 import { defineStore } from 'pinia'
 import { watch } from 'vue'
 
-import { getGamesHistory, postGame, postGamesHistory } from '@/api'
+import { getGamesHistory, postGamesHistory } from '@/api'
 import { K_LASTSYNC } from '@/constants'
 import { getItem, setItem } from '@/storage'
 
@@ -39,7 +39,6 @@ export const useHistoryStore = defineStore(STORE_NAME, () => {
   }
 
   async function synchronizeWithBackend(): Promise<void> {
-    console.log('Synchronizing with backend')
     const lastSyncDate = new Date(
       getItem(K_LASTSYNC, new Date(0).toISOString()),
     )
@@ -79,13 +78,21 @@ export const useHistoryStore = defineStore(STORE_NAME, () => {
     }
   }
 
+  /**
+   * Saves the score of a game and synchronizes it with the backend
+   * @param seed
+   * @param won
+   * @param score
+   */
   function setScore(seed: string, won: boolean, score: number): void {
     const stats = state.value
     // Don't overwrite an existing score
     if (!stats.games[seed]) {
       console.log('Setting score for', seed, won, score)
       stats.games[seed] = { score, won }
-      postGame({ gameId: seed, score, won })
+      synchronizeWithBackend().catch(e => {
+        console.error('Error synchronizing history with backend:', e)
+      })
       umami.track(won ? 'win_game' : 'lose_game')
       umami.track('end_game')
     }

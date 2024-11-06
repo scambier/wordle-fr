@@ -100,7 +100,7 @@ export async function fetchWordsGrid(): Promise<SyncedState | null> {
   }
   const existing = (
     await pb.collection('motus_state').getList(1, 1, {
-      requestKey: null, // Disable auto cancellation
+      // requestKey: null, // Disable auto cancellation
       filter: pb.filter('user = {:user}', { user: pb.authStore.record?.id }),
     })
   ).items
