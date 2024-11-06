@@ -2,7 +2,7 @@ import { useStorage } from '@vueuse/core'
 import { defineStore } from 'pinia'
 import { watch } from 'vue'
 
-import { getGamesHistory, postGamesHistory } from '@/api'
+import { getGamesHistory, isLoggedIn, postGamesHistory } from '@/api'
 import { K_LASTSYNC } from '@/constants'
 import { getItem, setItem } from '@/storage'
 
@@ -39,6 +39,9 @@ export const useHistoryStore = defineStore(STORE_NAME, () => {
   }
 
   async function synchronizeWithBackend(): Promise<void> {
+    if (!isLoggedIn()) {
+      return
+    }
     const lastSyncDate = new Date(
       getItem(K_LASTSYNC, new Date(0).toISOString()),
     )
