@@ -67,12 +67,14 @@ export const useSessionStore = defineStore(STORE_NAME, () => {
   function resetIfSeedChanged(): boolean {
     const gameId = getSeed()
     if (state.value.gameId !== gameId) {
-      guesses.forEach(o => {
-        o.word = ''
-        o.confirmed = false
-      })
+      console.log('seed changed')
       $reset()
-      showToast('Un nouveau mot à deviner a été choisi.', 5000)
+      location.reload()
+      // showToast('Un nouveau mot à deviner a été choisi.', 5000)
+      // guesses.forEach(o => {
+      //   o.word = ''
+      //   o.confirmed = false
+      // })
       return true
     }
     return false

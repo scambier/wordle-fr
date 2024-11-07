@@ -58,7 +58,6 @@ import {
   watchEffect,
 } from 'vue'
 
-import { needToReloadWords } from '@/api'
 import LetterBox from '@/components/common/LetterBox.vue'
 import SiteHeader from '@/components/SiteHeader.vue'
 import VisualKeyboard from '@/components/VisualKeyboard.vue'
@@ -79,20 +78,16 @@ import { getSeed } from '@/utils'
 const grid = ref<HTMLDivElement | null>(null)
 watchEffect(() => onSizeChange)
 
-watch(needToReloadWords, () => {
-  loadSavedWordsIntoGuesses()
-})
-
 /**
  * Animating the letters color changes
  */
 const animating = ref(false)
 const isCaretVisible = ref(true)
 
-const gridStore = useSessionStore()
+const sessionStore = useSessionStore()
 const historyStore = useHistoryStore()
 
-gridStore.$subscribe((_mutation, _state) => {
+sessionStore.$subscribe((_mutation, _state) => {
   loadSavedWordsIntoGuesses()
 })
 
@@ -265,8 +260,8 @@ function stopBlinkingCaret(): void {
  * Load saved words at startup
  */
 function loadSavedWordsIntoGuesses(): void {
-  for (let i = 0; i < gridStore.words.length; ++i) {
-    guesses[i].word = gridStore.words[i]
+  for (let i = 0; i < sessionStore.words.length; ++i) {
+    guesses[i].word = sessionStore.words[i]
     inputWord()
   }
 }

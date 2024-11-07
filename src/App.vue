@@ -49,14 +49,20 @@ import { useSessionStore } from './stores/session'
 
 const sessionStore = useSessionStore()
 
+let timer: NodeJS.Timeout | null = null
+
 onMounted(async () => {
   window.addEventListener('focus', sessionStore.fetchFromBackend)
   // Call those methods in the end of onMounted to avoid blocking the UI
   await sessionStore.fetchFromBackend()
+  timer = setInterval(sessionStore.resetIfSeedChanged, 1000)
 })
 
 onUnmounted(() => {
   window.removeEventListener('focus', sessionStore.fetchFromBackend)
+  if (timer) {
+    clearInterval(timer)
+  }
 })
 
 function isInMaintenance(): boolean {

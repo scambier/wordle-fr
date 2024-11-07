@@ -26,8 +26,6 @@ interface TypedPocketBase extends PocketBase {
 
 export const pb = new PocketBase(import.meta.env.VITE_PB_URL) as TypedPocketBase
 
-export const needToReloadWords = ref('')
-
 export function isLoggedIn(): boolean {
   return !!pb.authStore.isValid
 }
