@@ -13,7 +13,12 @@
         <LetterBox
           v-if="i === 2 && j === 0"
           is="button"
-          @click="emit('enter')"
+          @click="
+            () => {
+              vibrate()
+              emit('enter')
+            }
+          "
           title="Entrée"
           class="flex basis-[calc(15%+5px)] flex-col bg-slate-700 active:bg-slate-600">
           <IconReturn class="size-8" />
@@ -22,7 +27,12 @@
         <!-- Letter -->
         <LetterBox
           is="button"
-          @click="emit('input', letter)"
+          @click="
+            () => {
+              vibrate()
+              emit('input', letter)
+            }
+          "
           class="basis-[10%] uppercase active:bg-slate-600"
           :class="colorToClass(colors[letter])">
           {{ letter }}
@@ -32,7 +42,12 @@
         <LetterBox
           v-if="i === 2 && j === line.length - 1"
           is="button"
-          @click="emit('backspace')"
+          @click="
+            () => {
+              vibrate()
+              emit('backspace')
+            }
+          "
           title="Effacer"
           class="basis-[calc(15%+5px)] bg-slate-700 active:bg-slate-600">
           <IconBackspace class="size-8" />
@@ -64,6 +79,12 @@ const keyboard = [
   'qsdfghjklm'.split(''),
   'wxcvbn?'.split(''),
 ]
+
+function vibrate(): void {
+  if ('vibrate' in navigator) {
+    navigator.vibrate(50)
+  }
+}
 
 function colorToClass(color: KeyColor): string {
   switch (color) {
