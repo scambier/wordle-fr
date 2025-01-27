@@ -13,6 +13,21 @@
       Une lettre mal placée est 🟨.<br>
       Une lettre qui n'est pas dans le mot reste ⬛.
     </p>
+    <div class="mb-4 border-y py-2">
+      <strong>✨ Nouveauté ✨</strong><br>
+      <div class="text-sm">
+        Envie d'un nouveau jeu quotidien ? Essayez
+        <a
+          href="https://scambier.xyz/scrabeul"
+          class="text-slate-300 underline">SCRABEUL</a>
+        !
+        <a href="https://scambier.xyz/scrabeul">
+          <img
+            class="my-2 inline-block max-w-80"
+            src="../../assets/scrabeul.png">
+        </a>
+      </div>
+    </div>
     <div>
       <ButtonGreen @click="isVisibleModalWelcome = false">
         C'est parti !
