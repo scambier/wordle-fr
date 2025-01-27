@@ -69,8 +69,13 @@
         v-else>
         Déconnecté - La sauvegarde des scores est désactivée<br>
         <button
-          @click.prevent="() => router.push('/auth')"
-          class="mt-2 border p-2">
+          @click.prevent="
+            () => {
+              isVisibleModalStats = false
+              router.push('/auth')
+            }
+          "
+          class="mt-2 border p-2 text-white">
           Connexion
         </button>
       </div>
