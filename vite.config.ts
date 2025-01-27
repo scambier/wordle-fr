@@ -9,7 +9,7 @@ process.env.VITE_BUILD_DATE = new Date().toISOString()
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  base: '/motus2/',
+  base: '/momomotus/',
   plugins: [
     vue(),
     Icons({ autoInstall: true }),
